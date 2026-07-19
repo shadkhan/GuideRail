@@ -1,0 +1,10 @@
+:root{
+--shadow-hard-sm:4px 4px 0 var(--ruled-blue);
+--shadow-hard:8px 8px 0 var(--ruled-blue);
+--shadow-hard-ink:6px 6px 0 var(--ink-navy);
+--shadow-hard-accent:6px 6px 0 var(--margin-red);
+--ease-standard:cubic-bezier(.4,0,.2,1); /* @kind other */
+--duration-fast:120ms; /* @kind other */
+--duration-normal:200ms; /* @kind other */
+--ruled-line-bg:repeating-linear-gradient(to bottom,transparent,transparent 27px,var(--ruled-blue) 27px,var(--ruled-blue) 28px);
+}

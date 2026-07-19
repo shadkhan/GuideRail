@@ -1,0 +1,31 @@
+{
+  "name": "guiderail",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Curriculum-aware MV3 filtering extension. Rust-WASM classification core, TypeScript extension shell.",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.11",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "pretest": "cargo test --manifest-path packages/core-wasm/Cargo.toml",
+    "bench:wasm": "node bench/harness/puppeteer.mjs",
+    "ext:dev": "turbo run dev --filter=@guiderail/extension",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md,css,html}\""
+  },
+  "devDependencies": {
+    "binaryen": "^131.0.0",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "puppeteer": "^25.3.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.64.0",
+    "vitest": "^2.1.8",
+    "web-ext": "^8.3.0"
+  }
+}

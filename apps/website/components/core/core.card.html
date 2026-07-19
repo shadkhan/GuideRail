@@ -1,0 +1,39 @@
+<!-- @dsCard group="Components" viewport="700x360" name="Core — Button, IconButton, Badge, Tag" -->
+<html><head><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+</head><body style="margin:0;background:var(--paper);padding:20px;box-sizing:border-box;font-family:var(--font-body)">
+<div id="root"></div>
+<script type="text/babel">
+const { Button, IconButton, Badge, Tag, Icon } = window.GuideRailDesignSystem_a2763f;
+function Demo(){
+  const [tag, setTag] = React.useState('screen-time');
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:16}}>
+      <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+        <Button variant="primary">Start free trial</Button>
+        <Button variant="secondary">See how it works</Button>
+        <Button variant="ghost">Learn more</Button>
+        <Button variant="primary" disabled>Disabled</Button>
+      </div>
+      <div style={{display:'flex',gap:12,alignItems:'center'}}>
+        <IconButton icon={<Icon name="x" size={18}/>} label="Close" variant="ghost"/>
+        <IconButton icon={<Icon name="chevron-right" size={18}/>} label="Next" variant="secondary"/>
+        <IconButton icon={<Icon name="shield" size={18}/>} label="Protection" variant="primary"/>
+        <Badge tone="success">Earned</Badge>
+        <Badge tone="accent">Age 8+</Badge>
+        <Badge tone="neutral">New</Badge>
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <Tag active={tag==='screen-time'} onClick={()=>setTag('screen-time')}>Screen time</Tag>
+        <Tag active={tag==='privacy'} onClick={()=>setTag('privacy')}>Privacy</Tag>
+        <Tag active={tag==='setup'} onClick={()=>setTag('setup')}>Setup</Tag>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body></html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!--
+  Open Graph image template for GuideRail (1200 × 630).
+  This is not shipped to visitors — it's the source you screenshot / render to PNG.
+
+  Options to produce og-image.png:
+    A. Manual: Open this file in Chrome at exactly 1200×630 viewport (DevTools →
+       device toolbar → responsive → set 1200×630 → screenshot the .card element).
+    B. Headless: `npx playwright screenshot og-image.html og-image.png --viewport-size=1200,630`
+       (or use `puppeteer` — see bench/harness/ once that's scaffolded).
+    C. Any online screenshot service (htmlcsstoimage.com, urlbox.io) pointed at this file.
+
+  Save the resulting PNG as `og-image.png` in this folder. That's what meta tags reference.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GuideRail OG image (1200×630)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=IBM+Plex+Mono:wght@400;600&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #333; font-family: 'Bricolage Grotesque', system-ui, sans-serif; }
+  .card {
+    width: 1200px;
+    height: 630px;
+    background: #FBFBF6;
+    background-image: repeating-linear-gradient(to bottom, transparent, transparent 39px, #C7D6EA 39px, #C7D6EA 40px);
+    position: relative;
+    padding: 72px 80px 72px 128px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .margin {
+    position: absolute;
+    left: 88px;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: #D64541;
+  }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #D64541;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .wordmark {
+    font-size: 120px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+  .wordmark .guide { color: #1B2A4A; }
+  .wordmark .rail  { color: #D64541; }
+  .headline {
+    font-size: 48px;
+    font-weight: 700;
+    color: #1B2A4A;
+    line-height: 1.15;
+    max-width: 900px;
+  }
+  .headline .earn { color: #2E7D4F; }
+  .tagline {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 20px;
+    color: #5A6A8A;
+    line-height: 1.5;
+    max-width: 920px;
+    margin-bottom: 28px;
+  }
+  .closing {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-style: italic;
+    font-size: 18px;
+    color: #1B2A4A;
+    padding-top: 24px;
+    border-top: 2px solid #C7D6EA;
+    max-width: 920px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="margin"></div>
+  <div>
+    <div class="eyebrow">GuideRail · study browser</div>
+    <div class="wordmark"><span class="guide">Guide</span><span class="rail">Rail</span></div>
+    <div class="headline">Earn it, <span class="earn">fair and square</span>.</div>
+  </div>
+  <div>
+    <div class="tagline">The study browser that turns blocked pages into learning — and screen time into a reward.</div>
+    <div class="closing">"Filtering tools don't teach. Teaching tools don't protect. GuideRail does both."</div>
+  </div>
+</div>
+</body>
+</html>

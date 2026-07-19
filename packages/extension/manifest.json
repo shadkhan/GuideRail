@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "GuideRail",
+  "version": "0.0.0",
+  "description": "The study browser that turns blocked pages into learning.",
+  "minimum_chrome_version": "120",
+  "action": {
+    "default_title": "GuideRail"
+  },
+  "background": {
+    "service_worker": "service_worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "run_at": "document_start",
+      "css": ["static/blur.css"],
+      "js": ["content.js"]
+    }
+  ],
+  "permissions": [
+    "declarativeNetRequest",
+    "storage",
+    "alarms",
+    "scripting"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "web_accessible_resources": [
+    {
+      "resources": ["pkg/*.wasm", "quiz_gate.html"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

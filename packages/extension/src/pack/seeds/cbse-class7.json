@@ -1,0 +1,1358 @@
+{
+  "id": "cbse-class7",
+  "version": "1.0.0",
+  "locale": "en-IN",
+  "board": "CBSE",
+  "grade_band": "7",
+  "tags": [
+    "math",
+    "science",
+    "history",
+    "geography",
+    "civics",
+    "english",
+    "computer",
+    "study"
+  ],
+  "allow_domains": [
+    "khanacademy.org",
+    "pw.live",
+    "diksha.gov.in",
+    "ncert.nic.in",
+    "vedantu.com",
+    "unacademy.com",
+    "doubtnut.com",
+    "toppr.com",
+    "ck12.org",
+    "tiwariacademy.com",
+    "learncbse.in",
+    "mycbseguide.com",
+    "selfstudys.com",
+    "byjus.com",
+    "meritnation.com",
+    "extramarks.com",
+    "embibe.com",
+    "topperlearning.com",
+    "studyrankers.com",
+    "nios.ac.in",
+    "swayam.gov.in",
+    "nptel.ac.in",
+    "brilliant.org",
+    "geogebra.org",
+    "desmos.com",
+    "wolframalpha.com",
+    "mathsisfun.com",
+    "britannica.com",
+    "natgeokids.com",
+    "ducksters.com",
+    "brainpop.com",
+    "sciencekids.co.nz",
+    "olympiadtester.com",
+    "learnohub.com",
+    "physicswallah.live",
+    "shaalaa.com",
+    "aglasem.com",
+    "successcds.net",
+    "jagranjosh.com",
+    "careerpower.in",
+    "cuemath.com",
+    "splashlearn.com",
+    "education.com",
+    "ixl.com",
+    "khanacademykids.org",
+    "storyweaver.org.in",
+    "gutenberg.org",
+    "cbse.gov.in",
+    "cbseacademic.nic.in",
+    "cbse.nic.in"
+  ],
+  "allow_keywords": [
+    {
+      "term": "algebra",
+      "tag": "math"
+    },
+    {
+      "term": "algebraic expression",
+      "tag": "math"
+    },
+    {
+      "term": "algebraic identity",
+      "tag": "math"
+    },
+    {
+      "term": "integer",
+      "tag": "math"
+    },
+    {
+      "term": "fraction",
+      "tag": "math"
+    },
+    {
+      "term": "decimal",
+      "tag": "math"
+    },
+    {
+      "term": "ratio and proportion",
+      "tag": "math"
+    },
+    {
+      "term": "percentage",
+      "tag": "math"
+    },
+    {
+      "term": "exponent",
+      "tag": "math"
+    },
+    {
+      "term": "exponents and powers",
+      "tag": "math"
+    },
+    {
+      "term": "rational number",
+      "tag": "math"
+    },
+    {
+      "term": "linear equation",
+      "tag": "math"
+    },
+    {
+      "term": "simple equation",
+      "tag": "math"
+    },
+    {
+      "term": "coefficient",
+      "tag": "math"
+    },
+    {
+      "term": "congruent triangles",
+      "tag": "math"
+    },
+    {
+      "term": "quadrilateral",
+      "tag": "math"
+    },
+    {
+      "term": "perimeter",
+      "tag": "math"
+    },
+    {
+      "term": "surface area",
+      "tag": "math"
+    },
+    {
+      "term": "lines and angles",
+      "tag": "math"
+    },
+    {
+      "term": "parallel lines",
+      "tag": "math"
+    },
+    {
+      "term": "symmetry",
+      "tag": "math"
+    },
+    {
+      "term": "geometry",
+      "tag": "math"
+    },
+    {
+      "term": "data handling",
+      "tag": "math"
+    },
+    {
+      "term": "arithmetic mean",
+      "tag": "math"
+    },
+    {
+      "term": "median of data",
+      "tag": "math"
+    },
+    {
+      "term": "mode of data",
+      "tag": "math"
+    },
+    {
+      "term": "bar graph",
+      "tag": "math"
+    },
+    {
+      "term": "probability",
+      "tag": "math"
+    },
+    {
+      "term": "polygon",
+      "tag": "math"
+    },
+    {
+      "term": "radius",
+      "tag": "math"
+    },
+    {
+      "term": "diameter",
+      "tag": "math"
+    },
+    {
+      "term": "circumference",
+      "tag": "math"
+    },
+    {
+      "term": "number line",
+      "tag": "math"
+    },
+    {
+      "term": "prime number",
+      "tag": "math"
+    },
+    {
+      "term": "composite number",
+      "tag": "math"
+    },
+    {
+      "term": "highest common factor",
+      "tag": "math"
+    },
+    {
+      "term": "lowest common multiple",
+      "tag": "math"
+    },
+    {
+      "term": "square root",
+      "tag": "math"
+    },
+    {
+      "term": "cube root",
+      "tag": "math"
+    },
+    {
+      "term": "mensuration",
+      "tag": "math"
+    },
+    {
+      "term": "coordinate geometry",
+      "tag": "math"
+    },
+    {
+      "term": "profit and loss",
+      "tag": "math"
+    },
+    {
+      "term": "simple interest",
+      "tag": "math"
+    },
+    {
+      "term": "comparing quantities",
+      "tag": "math"
+    },
+    {
+      "term": "natural number",
+      "tag": "math"
+    },
+    {
+      "term": "whole number",
+      "tag": "math"
+    },
+    {
+      "term": "place value",
+      "tag": "math"
+    },
+    {
+      "term": "roman numeral",
+      "tag": "math"
+    },
+    {
+      "term": "unitary method",
+      "tag": "math"
+    },
+    {
+      "term": "nutrition in plants",
+      "tag": "science"
+    },
+    {
+      "term": "photosynthesis",
+      "tag": "science"
+    },
+    {
+      "term": "respiration",
+      "tag": "science"
+    },
+    {
+      "term": "transportation in animals",
+      "tag": "science"
+    },
+    {
+      "term": "excretion",
+      "tag": "science"
+    },
+    {
+      "term": "reproduction in plants",
+      "tag": "science"
+    },
+    {
+      "term": "heat energy",
+      "tag": "science"
+    },
+    {
+      "term": "temperature",
+      "tag": "science"
+    },
+    {
+      "term": "thermometer",
+      "tag": "science"
+    },
+    {
+      "term": "conduction",
+      "tag": "science"
+    },
+    {
+      "term": "convection",
+      "tag": "science"
+    },
+    {
+      "term": "radiation",
+      "tag": "science"
+    },
+    {
+      "term": "acid",
+      "tag": "science"
+    },
+    {
+      "term": "alkali",
+      "tag": "science"
+    },
+    {
+      "term": "acids and bases",
+      "tag": "science"
+    },
+    {
+      "term": "indicator",
+      "tag": "science"
+    },
+    {
+      "term": "neutralisation",
+      "tag": "science"
+    },
+    {
+      "term": "physical change",
+      "tag": "science"
+    },
+    {
+      "term": "chemical change",
+      "tag": "science"
+    },
+    {
+      "term": "rusting of iron",
+      "tag": "science"
+    },
+    {
+      "term": "weather and climate",
+      "tag": "science"
+    },
+    {
+      "term": "adaptation",
+      "tag": "science"
+    },
+    {
+      "term": "wind energy",
+      "tag": "science"
+    },
+    {
+      "term": "thunderstorm",
+      "tag": "science"
+    },
+    {
+      "term": "cyclone",
+      "tag": "science"
+    },
+    {
+      "term": "soil profile",
+      "tag": "science"
+    },
+    {
+      "term": "water cycle",
+      "tag": "science"
+    },
+    {
+      "term": "forest ecosystem",
+      "tag": "science"
+    },
+    {
+      "term": "ecosystem",
+      "tag": "science"
+    },
+    {
+      "term": "wastewater treatment",
+      "tag": "science"
+    },
+    {
+      "term": "electric current",
+      "tag": "science"
+    },
+    {
+      "term": "electric circuit",
+      "tag": "science"
+    },
+    {
+      "term": "magnetism",
+      "tag": "science"
+    },
+    {
+      "term": "laws of motion",
+      "tag": "science"
+    },
+    {
+      "term": "speed and velocity",
+      "tag": "science"
+    },
+    {
+      "term": "reflection of light",
+      "tag": "science"
+    },
+    {
+      "term": "plane mirror",
+      "tag": "science"
+    },
+    {
+      "term": "spherical mirror",
+      "tag": "science"
+    },
+    {
+      "term": "lens",
+      "tag": "science"
+    },
+    {
+      "term": "chlorophyll",
+      "tag": "science"
+    },
+    {
+      "term": "stomata",
+      "tag": "science"
+    },
+    {
+      "term": "digestion",
+      "tag": "science"
+    },
+    {
+      "term": "circulatory system",
+      "tag": "science"
+    },
+    {
+      "term": "nervous system",
+      "tag": "science"
+    },
+    {
+      "term": "plant cell",
+      "tag": "science"
+    },
+    {
+      "term": "animal cell",
+      "tag": "science"
+    },
+    {
+      "term": "human organ",
+      "tag": "science"
+    },
+    {
+      "term": "mitochondria",
+      "tag": "science"
+    },
+    {
+      "term": "friction",
+      "tag": "science"
+    },
+    {
+      "term": "gravitation",
+      "tag": "science"
+    },
+    {
+      "term": "kinetic energy",
+      "tag": "science"
+    },
+    {
+      "term": "molecule",
+      "tag": "science"
+    },
+    {
+      "term": "atom",
+      "tag": "science"
+    },
+    {
+      "term": "chemical element",
+      "tag": "science"
+    },
+    {
+      "term": "states of matter",
+      "tag": "science"
+    },
+    {
+      "term": "food chain",
+      "tag": "science"
+    },
+    {
+      "term": "food web",
+      "tag": "science"
+    },
+    {
+      "term": "acid rain",
+      "tag": "science"
+    },
+    {
+      "term": "boiling point",
+      "tag": "science"
+    },
+    {
+      "term": "evaporation and condensation",
+      "tag": "science"
+    },
+    {
+      "term": "medieval india",
+      "tag": "history"
+    },
+    {
+      "term": "delhi sultanate",
+      "tag": "history"
+    },
+    {
+      "term": "mughal empire",
+      "tag": "history"
+    },
+    {
+      "term": "dynasty",
+      "tag": "history"
+    },
+    {
+      "term": "tribes and nomads",
+      "tag": "history"
+    },
+    {
+      "term": "temple architecture",
+      "tag": "history"
+    },
+    {
+      "term": "medieval architecture",
+      "tag": "history"
+    },
+    {
+      "term": "sultan",
+      "tag": "history"
+    },
+    {
+      "term": "emperor",
+      "tag": "history"
+    },
+    {
+      "term": "administration",
+      "tag": "history"
+    },
+    {
+      "term": "revolution",
+      "tag": "history"
+    },
+    {
+      "term": "civilization",
+      "tag": "history"
+    },
+    {
+      "term": "ancient civilization",
+      "tag": "history"
+    },
+    {
+      "term": "trade route",
+      "tag": "history"
+    },
+    {
+      "term": "monument",
+      "tag": "history"
+    },
+    {
+      "term": "manuscript",
+      "tag": "history"
+    },
+    {
+      "term": "chronicle",
+      "tag": "history"
+    },
+    {
+      "term": "coinage",
+      "tag": "history"
+    },
+    {
+      "term": "regional culture",
+      "tag": "history"
+    },
+    {
+      "term": "bhakti movement",
+      "tag": "history"
+    },
+    {
+      "term": "sufi tradition",
+      "tag": "history"
+    },
+    {
+      "term": "cavalry",
+      "tag": "history"
+    },
+    {
+      "term": "fortification",
+      "tag": "history"
+    },
+    {
+      "term": "land grant",
+      "tag": "history"
+    },
+    {
+      "term": "pilgrimage",
+      "tag": "history"
+    },
+    {
+      "term": "colonial rule",
+      "tag": "history"
+    },
+    {
+      "term": "independence movement",
+      "tag": "history"
+    },
+    {
+      "term": "kingdom",
+      "tag": "history"
+    },
+    {
+      "term": "archaeology",
+      "tag": "history"
+    },
+    {
+      "term": "historical source",
+      "tag": "history"
+    },
+    {
+      "term": "medieval society",
+      "tag": "history"
+    },
+    {
+      "term": "delhi sultans",
+      "tag": "history"
+    },
+    {
+      "term": "environment",
+      "tag": "geography"
+    },
+    {
+      "term": "atmosphere",
+      "tag": "geography"
+    },
+    {
+      "term": "lithosphere",
+      "tag": "geography"
+    },
+    {
+      "term": "hydrosphere",
+      "tag": "geography"
+    },
+    {
+      "term": "biosphere",
+      "tag": "geography"
+    },
+    {
+      "term": "mineral",
+      "tag": "geography"
+    },
+    {
+      "term": "landform",
+      "tag": "geography"
+    },
+    {
+      "term": "air pressure",
+      "tag": "geography"
+    },
+    {
+      "term": "erosion",
+      "tag": "geography"
+    },
+    {
+      "term": "weathering",
+      "tag": "geography"
+    },
+    {
+      "term": "sediment",
+      "tag": "geography"
+    },
+    {
+      "term": "glacier",
+      "tag": "geography"
+    },
+    {
+      "term": "river system",
+      "tag": "geography"
+    },
+    {
+      "term": "ocean current",
+      "tag": "geography"
+    },
+    {
+      "term": "natural vegetation",
+      "tag": "geography"
+    },
+    {
+      "term": "wildlife",
+      "tag": "geography"
+    },
+    {
+      "term": "human settlement",
+      "tag": "geography"
+    },
+    {
+      "term": "agriculture",
+      "tag": "geography"
+    },
+    {
+      "term": "irrigation",
+      "tag": "geography"
+    },
+    {
+      "term": "monsoon",
+      "tag": "geography"
+    },
+    {
+      "term": "latitude",
+      "tag": "geography"
+    },
+    {
+      "term": "longitude",
+      "tag": "geography"
+    },
+    {
+      "term": "equator",
+      "tag": "geography"
+    },
+    {
+      "term": "plateau",
+      "tag": "geography"
+    },
+    {
+      "term": "peninsula",
+      "tag": "geography"
+    },
+    {
+      "term": "river delta",
+      "tag": "geography"
+    },
+    {
+      "term": "tributary",
+      "tag": "geography"
+    },
+    {
+      "term": "climate zone",
+      "tag": "geography"
+    },
+    {
+      "term": "weather pattern",
+      "tag": "geography"
+    },
+    {
+      "term": "environmental pollution",
+      "tag": "geography"
+    },
+    {
+      "term": "soil erosion",
+      "tag": "geography"
+    },
+    {
+      "term": "democracy",
+      "tag": "civics"
+    },
+    {
+      "term": "right to equality",
+      "tag": "civics"
+    },
+    {
+      "term": "state government",
+      "tag": "civics"
+    },
+    {
+      "term": "mass media",
+      "tag": "civics"
+    },
+    {
+      "term": "marketplace",
+      "tag": "civics"
+    },
+    {
+      "term": "constitution",
+      "tag": "civics"
+    },
+    {
+      "term": "citizenship",
+      "tag": "civics"
+    },
+    {
+      "term": "election",
+      "tag": "civics"
+    },
+    {
+      "term": "gender equality",
+      "tag": "civics"
+    },
+    {
+      "term": "advertising",
+      "tag": "civics"
+    },
+    {
+      "term": "consumer rights",
+      "tag": "civics"
+    },
+    {
+      "term": "public health",
+      "tag": "civics"
+    },
+    {
+      "term": "sanitation",
+      "tag": "civics"
+    },
+    {
+      "term": "local government",
+      "tag": "civics"
+    },
+    {
+      "term": "gram panchayat",
+      "tag": "civics"
+    },
+    {
+      "term": "municipality",
+      "tag": "civics"
+    },
+    {
+      "term": "fundamental rights",
+      "tag": "civics"
+    },
+    {
+      "term": "social justice",
+      "tag": "civics"
+    },
+    {
+      "term": "parliament",
+      "tag": "civics"
+    },
+    {
+      "term": "legislature",
+      "tag": "civics"
+    },
+    {
+      "term": "executive",
+      "tag": "civics"
+    },
+    {
+      "term": "judiciary",
+      "tag": "civics"
+    },
+    {
+      "term": "secularism",
+      "tag": "civics"
+    },
+    {
+      "term": "sovereignty",
+      "tag": "civics"
+    },
+    {
+      "term": "right to education",
+      "tag": "civics"
+    },
+    {
+      "term": "public services",
+      "tag": "civics"
+    },
+    {
+      "term": "democratic government",
+      "tag": "civics"
+    },
+    {
+      "term": "grammar",
+      "tag": "english"
+    },
+    {
+      "term": "common noun",
+      "tag": "english"
+    },
+    {
+      "term": "proper noun",
+      "tag": "english"
+    },
+    {
+      "term": "pronoun",
+      "tag": "english"
+    },
+    {
+      "term": "verb",
+      "tag": "english"
+    },
+    {
+      "term": "adverb",
+      "tag": "english"
+    },
+    {
+      "term": "adjective",
+      "tag": "english"
+    },
+    {
+      "term": "verb tense",
+      "tag": "english"
+    },
+    {
+      "term": "preposition",
+      "tag": "english"
+    },
+    {
+      "term": "conjunction",
+      "tag": "english"
+    },
+    {
+      "term": "reading comprehension",
+      "tag": "english"
+    },
+    {
+      "term": "vocabulary",
+      "tag": "english"
+    },
+    {
+      "term": "paragraph writing",
+      "tag": "english"
+    },
+    {
+      "term": "essay writing",
+      "tag": "english"
+    },
+    {
+      "term": "narrative",
+      "tag": "english"
+    },
+    {
+      "term": "poetry",
+      "tag": "english"
+    },
+    {
+      "term": "prose",
+      "tag": "english"
+    },
+    {
+      "term": "simile",
+      "tag": "english"
+    },
+    {
+      "term": "metaphor",
+      "tag": "english"
+    },
+    {
+      "term": "personification",
+      "tag": "english"
+    },
+    {
+      "term": "alliteration",
+      "tag": "english"
+    },
+    {
+      "term": "synonym",
+      "tag": "english"
+    },
+    {
+      "term": "antonym",
+      "tag": "english"
+    },
+    {
+      "term": "phrase",
+      "tag": "english"
+    },
+    {
+      "term": "subordinate clause",
+      "tag": "english"
+    },
+    {
+      "term": "subject and predicate",
+      "tag": "english"
+    },
+    {
+      "term": "active voice",
+      "tag": "english"
+    },
+    {
+      "term": "passive voice",
+      "tag": "english"
+    },
+    {
+      "term": "direct speech",
+      "tag": "english"
+    },
+    {
+      "term": "indirect speech",
+      "tag": "english"
+    },
+    {
+      "term": "punctuation",
+      "tag": "english"
+    },
+    {
+      "term": "prefix",
+      "tag": "english"
+    },
+    {
+      "term": "suffix",
+      "tag": "english"
+    },
+    {
+      "term": "idiom",
+      "tag": "english"
+    },
+    {
+      "term": "figure of speech",
+      "tag": "english"
+    },
+    {
+      "term": "letter writing",
+      "tag": "english"
+    },
+    {
+      "term": "story writing",
+      "tag": "english"
+    },
+    {
+      "term": "definite article",
+      "tag": "english"
+    },
+    {
+      "term": "modal verb",
+      "tag": "english"
+    },
+    {
+      "term": "determiner",
+      "tag": "english"
+    },
+    {
+      "term": "reported speech",
+      "tag": "english"
+    },
+    {
+      "term": "creative writing",
+      "tag": "english"
+    },
+    {
+      "term": "descriptive writing",
+      "tag": "english"
+    },
+    {
+      "term": "dialogue writing",
+      "tag": "english"
+    },
+    {
+      "term": "comprehension passage",
+      "tag": "english"
+    },
+    {
+      "term": "grammar exercise",
+      "tag": "english"
+    },
+    {
+      "term": "algorithm",
+      "tag": "computer"
+    },
+    {
+      "term": "computer hardware",
+      "tag": "computer"
+    },
+    {
+      "term": "computer software",
+      "tag": "computer"
+    },
+    {
+      "term": "spreadsheet",
+      "tag": "computer"
+    },
+    {
+      "term": "database",
+      "tag": "computer"
+    },
+    {
+      "term": "programming",
+      "tag": "computer"
+    },
+    {
+      "term": "internet",
+      "tag": "computer"
+    },
+    {
+      "term": "web browser",
+      "tag": "computer"
+    },
+    {
+      "term": "keyboard",
+      "tag": "computer"
+    },
+    {
+      "term": "operating system",
+      "tag": "computer"
+    },
+    {
+      "term": "flowchart",
+      "tag": "computer"
+    },
+    {
+      "term": "binary number",
+      "tag": "computer"
+    },
+    {
+      "term": "input device",
+      "tag": "computer"
+    },
+    {
+      "term": "output device",
+      "tag": "computer"
+    },
+    {
+      "term": "computer memory",
+      "tag": "computer"
+    },
+    {
+      "term": "processor",
+      "tag": "computer"
+    },
+    {
+      "term": "computer network",
+      "tag": "computer"
+    },
+    {
+      "term": "email",
+      "tag": "computer"
+    },
+    {
+      "term": "presentation software",
+      "tag": "computer"
+    },
+    {
+      "term": "word processing",
+      "tag": "computer"
+    },
+    {
+      "term": "coding",
+      "tag": "computer"
+    },
+    {
+      "term": "iteration",
+      "tag": "computer"
+    },
+    {
+      "term": "function",
+      "tag": "computer"
+    },
+    {
+      "term": "cyber safety",
+      "tag": "computer"
+    },
+    {
+      "term": "search engine",
+      "tag": "computer"
+    },
+    {
+      "term": "html tag",
+      "tag": "computer"
+    },
+    {
+      "term": "scratch programming",
+      "tag": "computer"
+    },
+    {
+      "term": "variable declaration",
+      "tag": "computer"
+    },
+    {
+      "term": "computer virus",
+      "tag": "computer"
+    },
+    {
+      "term": "digital literacy",
+      "tag": "computer"
+    },
+    {
+      "term": "spreadsheet formula",
+      "tag": "computer"
+    },
+    {
+      "term": "homework",
+      "tag": "study"
+    },
+    {
+      "term": "textbook",
+      "tag": "study"
+    },
+    {
+      "term": "chapter summary",
+      "tag": "study"
+    },
+    {
+      "term": "exercise",
+      "tag": "study"
+    },
+    {
+      "term": "revision",
+      "tag": "study"
+    },
+    {
+      "term": "syllabus",
+      "tag": "study"
+    },
+    {
+      "term": "worksheet",
+      "tag": "study"
+    },
+    {
+      "term": "examination",
+      "tag": "study"
+    },
+    {
+      "term": "quiz",
+      "tag": "study"
+    },
+    {
+      "term": "study notes",
+      "tag": "study"
+    },
+    {
+      "term": "definition",
+      "tag": "study"
+    },
+    {
+      "term": "solved example",
+      "tag": "study"
+    },
+    {
+      "term": "formula",
+      "tag": "study"
+    },
+    {
+      "term": "diagram",
+      "tag": "study"
+    },
+    {
+      "term": "experiment",
+      "tag": "study"
+    },
+    {
+      "term": "practice questions",
+      "tag": "study"
+    },
+    {
+      "term": "lesson",
+      "tag": "study"
+    },
+    {
+      "term": "tutorial",
+      "tag": "study"
+    },
+    {
+      "term": "key concept",
+      "tag": "study"
+    },
+    {
+      "term": "assignment",
+      "tag": "study"
+    },
+    {
+      "term": "class notes",
+      "tag": "study"
+    },
+    {
+      "term": "sample paper",
+      "tag": "study"
+    },
+    {
+      "term": "previous year question",
+      "tag": "study"
+    },
+    {
+      "term": "ncert solution",
+      "tag": "study"
+    },
+    {
+      "term": "learning objective",
+      "tag": "study"
+    },
+    {
+      "term": "study guide",
+      "tag": "study"
+    },
+    {
+      "term": "flashcard",
+      "tag": "study"
+    },
+    {
+      "term": "mock test",
+      "tag": "study"
+    },
+    {
+      "term": "board examination",
+      "tag": "study"
+    }
+  ],
+  "allow_yt_channels": [
+    {
+      "channel_id": "UCkhanacademyindia000000",
+      "handle": "@khanacademyindia",
+      "label": "Khan Academy India",
+      "subjects": [
+        "math",
+        "science"
+      ]
+    },
+    {
+      "channel_id": "UCmagnetbrains0000000000",
+      "handle": "@MagnetBrainsEducation",
+      "label": "Magnet Brains",
+      "subjects": [
+        "math",
+        "science",
+        "english",
+        "history"
+      ]
+    },
+    {
+      "channel_id": "UClearnohub0000000000000",
+      "handle": "@LearnoHub",
+      "label": "LearnoHub - Class 11, 12",
+      "subjects": [
+        "science",
+        "math"
+      ]
+    },
+    {
+      "channel_id": "UCphysicswallah000000000",
+      "handle": "@PhysicsWallah",
+      "label": "Physics Wallah (umbrella)",
+      "subjects": [
+        "science",
+        "math"
+      ]
+    },
+    {
+      "channel_id": "UCncertofficial000000000",
+      "handle": "@ncertofficial",
+      "label": "NCERT OFFICIAL",
+      "subjects": [
+        "math",
+        "science",
+        "history",
+        "geography",
+        "civics"
+      ]
+    }
+  ],
+  "quiz_topics": [
+    "fractions",
+    "photosynthesis",
+    "the mughal empire",
+    "parts of speech",
+    "the water cycle",
+    "simple equations",
+    "acids and bases",
+    "indian democracy"
+  ],
+  "updated_at": "2026-07-19T00:00:00Z",
+  "yt_policy": {
+    "shorts": "gate",
+    "embeds": "inherit_parent"
+  }
+}

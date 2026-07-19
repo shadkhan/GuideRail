@@ -1,0 +1,22 @@
+{
+  "name": "@guiderail/extension",
+  "private": true,
+  "version": "0.0.0",
+  "description": "GuideRail MV3 extension: service worker, content scripts, DNR rules, blur blanket.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node dev.mjs",
+    "test": "vitest run",
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "ajv": "^8.17.1",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

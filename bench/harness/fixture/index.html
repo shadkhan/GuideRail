@@ -1,0 +1,16 @@
+<!doctype html>
+<!--
+  Bench fixture page. Registers sw.js as a module ServiceWorker so the
+  benchmark can drive the WASM classifier inside a real Chrome service
+  worker. See bench/harness/puppeteer.mjs for why this web-ServiceWorker
+  substrate is used instead of loading an MV3 extension.
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GuideRail bench fixture</title>
+  </head>
+  <body>
+    <p>GuideRail WASM bench fixture — registers sw.js and idles.</p>
+  </body>
+</html>

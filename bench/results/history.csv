@@ -1,0 +1,2 @@
+timestamp,git_sha,gzipped_kb,cold_p50_ms,warm_p50_ms,warm_p95_ms,warm_p99_ms,corpus_size,hardware
+2026-07-18T14:25:19.842Z,uncommitted,86.5,42.80,0.000,0.100,0.200,1209,win32-x64 Intel(R) Core(TM) i7-4800MQ CPU @ 2.70GHz

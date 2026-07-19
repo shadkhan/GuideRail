@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "GuideRail Bench Fixture",
+  "version": "0.0.0",
+  "description": "Minimal MV3 extension used ONLY by bench/harness/puppeteer.mjs to run the WASM classifier inside a real service worker. Not shipped. Kept independent of packages/extension (spec 002).",
+  "minimum_chrome_version": "120",
+  "background": {
+    "service_worker": "sw.js",
+    "type": "module"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["pkg/*.wasm"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

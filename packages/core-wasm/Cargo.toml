@@ -1,0 +1,42 @@
+[package]
+name = "guiderail-core"
+version = "0.0.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "GuideRail classifier + PII scrubber, compiled to WebAssembly."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
+aho-corasick = "1.1"
+# regex-lite, not the full regex crate: the full crate's Unicode tables and
+# DFA machinery add ~250KB gzipped to the .wasm (measured: 337KB total, over
+# the 200KB budget). regex-lite drops Unicode-by-default and lookaround we
+# don't use, and covers every pattern here ((?i), \b, \d, \s, classes,
+# alternation). See ADR-0003. Multi-pattern matching still goes through
+# aho-corasick, never regex (wasm-build skill).
+regex-lite = "0.1"
+lazy_static = "1.5"
+thiserror = "1"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+criterion = { version = "0.5", default-features = false }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+
+# wasm-opt is disabled: its binaryen binary is fetched from GitHub at build
+# time, which fails on networks that block that download, making the build
+# non-reproducible offline. With regex-lite the gzipped .wasm already clears
+# the 200KB budget without it; enabling wasm-opt later only adds headroom.
+# See ADR-0003.
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false

@@ -1,0 +1,35 @@
+/* Blur blanket — declared in manifest.json's content_scripts.css and
+   applied at document_start (before the HTML parser processes any page
+   content). This means images and video blur BEFORE they can render
+   even one frame.
+
+   Learning L-002 (docs/LEARNINGS.md): the JS content script NEVER adds
+   the .gr-blur class — CSS does that. JS only ADDS .gr-safe (which
+   overrides the blur) after the service worker validates the origin.
+   Reason: JS-adds-blur creates a race between image load and JS
+   execution; CSS-adds-blur is atomic with the initial paint.
+
+   Failure mode by design: if validation never happens or the worker
+   crashes, images stay blurred — visible degradation, never a leak. */
+
+img.gr-blur,
+video.gr-blur {
+  filter: blur(30px) brightness(0.5);
+  transition: filter 120ms ease;
+}
+
+img.gr-safe,
+video.gr-safe {
+  filter: none;
+}
+
+/* Respect the user's OS-level reduced-motion preference — no filter
+   transition for anyone who's opted out of animated UI. */
+@media (prefers-reduced-motion: reduce) {
+  img.gr-blur,
+  video.gr-blur,
+  img.gr-safe,
+  video.gr-safe {
+    transition: none;
+  }
+}

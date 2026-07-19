@@ -1,0 +1,17 @@
+{
+  "name": "@guiderail/llm-proxy",
+  "private": true,
+  "version": "0.0.0",
+  "description": "GuideRail LLM proxy (stub — implemented in spec 008; runtime per ADR-0006: TypeScript + Hono on Cloudflare Workers).",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "echo '@guiderail/llm-proxy is a stub (spec 008)' && exit 0",
+    "test": "echo 'no llm-proxy tests yet (spec 008)' && exit 0",
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

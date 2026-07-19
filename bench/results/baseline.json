@@ -1,0 +1,4 @@
+{
+  "note": "Baseline populated after the first approved bench run. See bench/README.md for the discipline. The PreToolUse hook blocks unapproved writes to this file.",
+  "status": "unpopulated"
+}

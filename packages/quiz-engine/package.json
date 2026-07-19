@@ -1,0 +1,17 @@
+{
+  "name": "@guiderail/quiz-engine",
+  "private": true,
+  "version": "0.0.0",
+  "description": "GuideRail quiz + earned-time engine (stub — implemented in spec 005).",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "echo '@guiderail/quiz-engine is a stub (spec 005)' && exit 0",
+    "test": "echo 'no quiz-engine tests yet (spec 005)' && exit 0",
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

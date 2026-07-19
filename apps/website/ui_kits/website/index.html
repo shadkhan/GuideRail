@@ -1,0 +1,110 @@
+<!-- @dsCard group="Website" viewport="1280x900" name="GuideRail Website" subtitle="Landing · Philosophy · FAQ — click nav to switch pages" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GuideRail — Earn it, fair and square</title>
+<meta name="description" content="The study browser that turns blocked pages into learning — and screen time into a reward. Curriculum-aware filtering for CBSE, ICSE, and homeschool. No spying, no shouting.">
+<meta name="theme-color" content="#D64541">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+
+<!-- Open Graph (LinkedIn, WhatsApp, Facebook, Slack link previews) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GuideRail">
+<meta property="og:title" content="GuideRail — Earn it, fair and square">
+<meta property="og:description" content="The study browser that turns blocked pages into learning — and screen time into a reward.">
+<meta property="og:image" content="./og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GuideRail — Earn it, fair and square. The study browser.">
+<meta property="og:url" content="https://guiderail.app/">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GuideRail — Earn it, fair and square">
+<meta name="twitter:description" content="Turn blocked pages into learning — and screen time into a reward.">
+<meta name="twitter:image" content="./og-image.png">
+
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="./Shell.jsx" type="text/babel"></script>
+<script src="./Landing.jsx" type="text/babel"></script>
+<script src="./About.jsx" type="text/babel"></script>
+<script src="./FAQ.jsx" type="text/babel"></script>
+<style>a{color:var(--margin-red)}a:hover{color:var(--color-accent-hover)}</style>
+</head>
+<body style="margin:0;background:var(--paper);min-height:100vh">
+<div id="root"></div>
+<script type="text/babel">
+const ds = window.GuideRailDesignSystem_a2763f;
+const PAGE_TITLES = {
+  landing: 'GuideRail — Earn it, fair and square',
+  about: 'Philosophy — GuideRail',
+  faq: 'FAQ — GuideRail',
+};
+
+// Diagnostic: if _ds_bundle.js failed to load or is missing components,
+// render a readable error page instead of the cryptic React destructure crash.
+// This runs at App mount; log details to the console so we can see them
+// even if the page appears blank.
+function diagnose() {
+  const problems = [];
+  if (typeof window.GuideRailDesignSystem_a2763f === 'undefined') {
+    problems.push('window.GuideRailDesignSystem_a2763f is undefined — _ds_bundle.js did not load or did not execute. Check Network tab for a 404 or CORS error on _ds_bundle.js.');
+  } else {
+    const need = ['Button', 'Card', 'Badge', 'Icon', 'Input'];
+    const missing = need.filter(k => typeof ds[k] !== 'function');
+    if (missing.length) problems.push('_ds_bundle.js loaded but is missing components: ' + missing.join(', ') + '. Check ds.__errors in the console.');
+    if (ds && Array.isArray(ds.__errors) && ds.__errors.length) {
+      problems.push('_ds_bundle.js reported ' + ds.__errors.length + ' internal error(s). See ds.__errors in the console.');
+      console.error('_ds_bundle.js __errors:', ds.__errors);
+    }
+  }
+  if (typeof window.Shell === 'undefined') problems.push('window.Shell is undefined — Shell.jsx did not run. Babel-standalone may have failed. Check console for babel errors.');
+  if (typeof window.Landing === 'undefined') problems.push('window.Landing is undefined — Landing.jsx did not run.');
+  if (typeof window.About === 'undefined') problems.push('window.About is undefined — About.jsx did not run.');
+  if (typeof window.FAQ === 'undefined') problems.push('window.FAQ is undefined — FAQ.jsx did not run.');
+  return problems;
+}
+
+function DiagnosticPage({ problems }) {
+  return (
+    <div style={{ padding: 48, fontFamily: 'system-ui, sans-serif', maxWidth: 720, margin: '0 auto', color: '#1B2A4A' }}>
+      <h1 style={{ color: '#D64541', fontSize: 28, marginBottom: 16 }}>Site failed to initialize</h1>
+      <p style={{ marginBottom: 24, lineHeight: 1.6 }}>
+        The GuideRail marketing site depends on <code>_ds_bundle.js</code> (design system)
+        and four JSX files (Shell, Landing, About, FAQ) loaded via Babel-in-browser.
+        One of them didn't come up. Details:
+      </p>
+      <ul style={{ background: '#FBEAE8', border: '2px solid #D64541', padding: '16px 20px 16px 40px', borderRadius: 8, lineHeight: 1.6 }}>
+        {problems.map((p, i) => <li key={i} style={{ marginBottom: 8 }}>{p}</li>)}
+      </ul>
+      <p style={{ marginTop: 24, fontFamily: 'monospace', fontSize: 13, background: '#F0F0F0', padding: 12, borderRadius: 6 }}>
+        Open DevTools → Network → reload. Look at status codes for _ds_bundle.js, styles.css, Shell.jsx, Landing.jsx, About.jsx, FAQ.jsx.
+      </p>
+    </div>
+  );
+}
+
+function App(){
+  const [page, setPage] = React.useState('landing');
+  React.useEffect(() => { document.title = PAGE_TITLES[page] || PAGE_TITLES.landing; }, [page]);
+  const problems = diagnose();
+  if (problems.length) return <DiagnosticPage problems={problems} />;
+  return (
+    <div>
+      <Shell.NavBar page={page} onNavigate={setPage} />
+      {page === 'landing' && <Landing.Landing ds={ds} onNavigate={setPage} />}
+      {page === 'about' && <About.About ds={ds} />}
+      {page === 'faq' && <FAQ.FAQ ds={ds} />}
+      <Shell.Footer />
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body></html>
