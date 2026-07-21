@@ -105,4 +105,50 @@ Concepts learned while building, for future study and behind-the-scenes understa
 **Related:** L-004, ADR-0003, ADR-0004, IQ-014
 
 ---
-*Next: L-013 (assigned by knowledge-capture skill)*
+
+### L-013 · declarativeNetRequest is blind to SPA navigation
+**Date:** 2026-07-20 · **Area:** MV3 · **Depth:** could-teach-it
+**What I learned:** DNR (declarativeNetRequest) rules only fire on actual network requests. A Single-Page App like YouTube navigates watch→watch entirely client-side (History API + fetch), with NO main_frame request — so a DNR redirect rule never sees the hop. Gating YouTube by channel therefore CANNOT be declarative; it must be script-side: the content script re-resolves on `yt-navigate-finish` and the worker redirects the tab. DNR is still the right tool for the static gate-list (real navigations, works while the worker sleeps).
+**Why it works (behind the scenes):** DNR's match engine is wired to the network stack; an SPA route change mutates the DOM and URL without a navigation the network stack observes, so there is nothing for a rule to match against.
+**Where it bit us / how discovered:** Designing spec 004A — a watch→watch jump to a non-allowed channel would slip through any DNR-only design; the fix was the `yt-navigate-finish` listener + tab-redirect path (ADR-0010).
+**Go deeper:** chrome.webNavigation.onHistoryStateUpdated; why MV3 dropped blocking webRequest.
+**Related:** L-006, ADR-0010, IQ-015
+
+### L-014 · Time-of-day gating = chrome.alarms toggling DNR rules, reconciled on wake
+**Date:** 2026-07-20 · **Area:** MV3 · **Depth:** could-teach-it
+**What I learned:** DNR rules have no time-of-day condition, and the service worker can't hold a timer (it's killed at ~30s idle). Study-hours gating is therefore: compute the next window boundary, arm ONE `chrome.alarms` alarm for it, and on fire add/remove the gate-list DNR rule. The trick that makes it survive the ephemeral worker: DNR dynamic rules persist across worker death, and the whole thing is written as an **idempotent reconcile** (rules present iff `now ∈ window`) called on install, `onStartup`, and each alarm — so a missed alarm or a cold wake self-heals.
+**Why it works (behind the scenes):** alarms and dynamic DNR rules are both owned by the browser, not the worker's heap, so they outlive the 30s idle-kill; reconcile-from-state (not toggle-on-event) means correctness never depends on an event actually having fired.
+**Where it bit us / how discovered:** Spec 004 study-hours — a naive "setTimeout to turn gating off" would die with the worker; the alarm+reconcile pattern is the MV3-correct shape.
+**Go deeper:** chrome.alarms minimum period (1 min); DNR updateDynamicRules atomicity.
+**Related:** L-006, L-013, ADR-0001
+
+---
+
+### L-015 · DNR regexSubstitution does NOT url-encode captures
+**Date:** 2026-07-20 · **Area:** MV3 · **Depth:** could-teach-it
+**What I learned:** A declarativeNetRequest (DNR) redirect built with `regexSubstitution` inserts the captured text verbatim — no percent-encoding. So redirecting a gated page to `quiz_gate.html?src=\0` (the whole matched URL) silently corrupts `src` for any URL with a `&` in its query string: the browser parses `?src=https://x.com/?a=1&utm=2` and truncates at the first `&`, dropping everything after. Fix: capture only the ORIGIN (`^(https?://[^/]+)` → `\1`), which has no `&`, instead of the full URL. (The JS-side redirect can `encodeURIComponent` the full URL; DNR can't.)
+**Why it works (behind the scenes):** DNR substitution is a plain regex backreference splice done in the network layer before the URL is re-parsed; there's no URL-context awareness, so reserved characters keep their query-delimiter meaning.
+**Where it bit us / how discovered:** spec-reviewer caught it in spec 005 — the gate-list redirect captured `\0`; a Reddit/Twitter share link with tracking params would have handed the quiz page a truncated `src`. Added `dnr.test.ts` to lock the origin-capture in.
+**Go deeper:** chrome.declarativeNetRequest Redirect.regexSubstitution docs; RE2 backreference semantics.
+**Related:** L-013, ADR-0005, spec 004 R1
+
+### L-016 · Worker-side grading keeps answer keys out of the page
+**Date:** 2026-07-20 · **Area:** Security · **Depth:** could-teach-it
+**What I learned:** For the quiz gate, the tempting design is to send questions-with-answers to the page and grade in JavaScript there — but then the answer key sits in the page DOM for any kid to read. Instead the worker selects the questions, stashes them WITH the answer key in `chrome.storage.session` under an `attemptId`, and sends the page only answer-stripped questions; the page submits chosen indices and the worker grades. `storage.session` (not module scope) is the right home: it survives the worker's ~30s idle-kill mid-quiz but clears when the browser closes. This is honest-but-not-unbypassable (a determined child can still read session storage via DevTools) — the residual risk is documented, not hidden (ADR-0005).
+**Why it works (behind the scenes):** the trust boundary is the page↔worker message channel; keeping the answer key on the worker side of it means the page never receives what it would need to auto-answer, raising the effort bar without pretending to be tamper-proof.
+**Where it bit us / how discovered:** designing spec 005 — the anti-cheat vs. ephemeral-worker tension drove both the worker-side grading and the storage.session choice.
+**Go deeper:** chrome.storage.session vs local lifetimes; MV3 message-passing trust boundaries.
+**Related:** L-006, ADR-0002, ADR-0005, IQ-016
+
+---
+
+### L-017 · You can't read chrome.storage before first paint — blur trust must be sync-static + async-refined
+**Date:** 2026-07-21 · **Area:** MV3 · **Depth:** could-teach-it
+**What I learned:** To blur unsafe images before they paint, a content script must decide AT document_start whether to activate the blanket — but the trust signals (active pack allow_domains, study hours, the spec-004 verdict cache) all live in `chrome.storage`, which is **async** with no synchronous read. So a storage-based decision can never beat the paint. The resolution is two-phase: a **synchronous** check against a small BUNDLED static set (the seed packs' allow_domains union) decides "blur or not" before paint, and the worker's **async** verdict then refines it (whole-page reveal, or per-element guard) a beat later. Trusted-but-not-in-the-static-set origins take a one-visit flash — inherent, documented.
+**Why it works (behind the scenes):** content scripts start fresh per page with no synchronous storage API; only data compiled into the bundle is available before the first `await`, so anything that must beat paint has to be static.
+**Where it bit us / how discovered:** designing spec 006 — the "no blur on Khan Academy AND no unblurred flash on unknown pages" pair is unsatisfiable from async storage alone; spec-reviewer also caught that the static set must be the real seed allow_domains (not a hand-picked list) to keep pack-trusted origins flash-free.
+**Go deeper:** chrome.storage async-only API; content_scripts run_at document_start timing vs first paint.
+**Related:** L-002, L-009, ADR-0011
+
+---
+*Next: L-018 (assigned by knowledge-capture skill)*

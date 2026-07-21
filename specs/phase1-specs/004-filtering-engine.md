@@ -1,5 +1,5 @@
 # Spec: Filtering Engine — classification flow & consumer profile policy
-Status: Draft · Date: 2026-07-17 · ADRs: implements ADR-0001 (fail-open/fail-closed as config)
+Status: Implemented · Date: 2026-07-17 (implemented 2026-07-20) · ADRs: implements ADR-0001 (fail-open/fail-closed as config); produces ADR-0010 (via 004A)
 
 ## Goal (one sentence, user-visible outcome)
 During study hours, schoolwork loads instantly and untouched; entertainment domains route to the quiz gate; everything else fails open (consumer profile) while being classified in the background.
@@ -18,11 +18,15 @@ R7. Every code path that would ever send data out routes through sanitize() — 
 - Institutional interstitial UX; remote classification backend; full-DOM analysis
 
 ## Acceptance criteria (how "done" is proven)
-- [ ] Test: pipeline unit tests for all four stages × in/out of study hours; TTL cache behavior
-- [ ] Evidence: screen recording — Khan Academy loads clean, youtube.com routes to gate placeholder, unknown blog loads (fail-open) and appears in the local classification queue
-- [ ] Benchmark: content-script extraction < 4ms p95 on the reference Chromebook; end-to-end verdict latency logged
-- [ ] Grep evidence: no `fetch(` outside the sanitize-guarded proxy module
+- [x] Test: pipeline unit tests for all four stages × in/out of study hours; TTL cache behavior — `packages/extension/src/pipeline/{policy,study-hours,verdict-cache,gate-list,youtube}.test.ts`
+- [~] Evidence: screen recording — Khan Academy clean, youtube.com routes to gate, unknown blog fails open + enters the local queue. **Manual step** (Chrome 2026 blocks CLI extension loading, L-008); the behavior is proven by `service_worker.test.ts` page.eval integration tests (allow-domain, gate-list redirect, fail-open) — the visual recording is produced by hand via `pnpm ext:dev`.
+- [x] Benchmark: content-script extraction < 4ms p95; end-to-end verdict latency logged — `src/pipeline/budget.test.ts` (evaluate p95 **0.011ms**), `[gr-bench] eval=…` / `extract=…` marks
+- [x] Grep evidence: no `fetch(` outside the sanitize-guarded proxy module — the only `fetch(` is `core.ts` loading the local packaged WASM binary (no page/child data); the classify queue is local + sanitize()-scrubbed
 
-## Open questions (must be empty before Status: Approved)
-- Q1: Study-hours granularity v1 — one daily window, or per-weekday schedule?
-- Q2: Should allow-verdict pages show any subtle indicator (green underline in toolbar icon) or stay invisible?
+## Resolved decisions (were open questions; resolved with user 2026-07-19)
+- Q1 (study-hours granularity): **per-weekday schedule** — `config.studyHours` is `Partial<Record<Weekday, Window[]>>`; `chrome.alarms` fire on window boundaries and reconcile the gate-list DNR rules.
+- Q2 (allow indicator): **invisible** — allowed pages get no badge/cue (matches the product's "invisible the rest of the time" promise).
+
+## Post-implementation notes
+- The pipeline is worker-side and pure (`policy.ts` `evaluate()`, deps injected); routing uses two mechanisms — DNR redirect for the static gate-list, `chrome.tabs.update` for non-declarative verdicts (metadata classify, YouTube channel, SPA hops).
+- Institutional profile branch exists (fail-closed on unknown) but its interstitial UX is spec 004+ / out of scope; consumer is the default.

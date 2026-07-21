@@ -149,4 +149,40 @@ Interview-ready Q&A harvested from real decisions in this project. Maintained by
 - **Evidence I can show:** docs/adr/0004-pack-format-and-trust.md, packages/extension/src/pack/{validate.ts,loader.ts}, the build-budget.test.ts 10k=83ms number, and the atomic-swap-survives-failed-update test.
 
 ---
-*Next: IQ-015 (assigned by knowledge-capture skill)*
+
+### IQ-015 · How do you filter YouTube without blocking the classroom?
+
+| Area | Source |
+| --- | --- |
+| MV3/Product/Filtering | ADR-0010, L-013, spec 004A |
+
+- **60-second answer:** In India YouTube is simultaneously the biggest classroom — Physics Wallah, Magnet Brains, Khan Academy India — and the biggest distraction, so a domain-level verdict is useless: block youtube.com and you block the lectures, allow it and you allow everything. The move is to change the verdict unit from the domain to the channel. On a /watch page the content script reads the channel_id from the page metadata and the worker does an exact set-lookup against the family's curriculum pack: in the pack, it plays untouched and its subject tags count toward what the child gets quizzed on; not in the pack, it routes to the quiz gate. Shorts are decided by format, not channel — always gated by default, because a Physics Wallah Short is still a slot machine. Two numbers matter: the channel resolution adds 0.004 ms p95, far under my 1 ms budget, and it needs zero WASM changes — it's a pure TypeScript set lookup.
+- **The follow-up they'll ask:** "YouTube is a single-page app — how do you catch a click from a lecture to a music video with no page reload?" — declarativeNetRequest can't see client-side navigation at all, so gating YouTube can't be declarative; the content script re-resolves on YouTube's `yt-navigate-finish` event and the worker redirects the tab. And when the channel_id can't be read at all — say YouTube changes its markup — I fail *closed* on YouTube specifically, an explicit exception to my consumer fail-open default, because YouTube's base rate is entertainment; that failure is persisted so a broken selector is detectable.
+- **Evidence I can show:** docs/adr/0010-youtube-policy.md, packages/extension/src/pipeline/youtube.ts, the 004A matrix in youtube.test.ts/policy.test.ts, and the budget.test.ts yt-resolve p95 0.004ms.
+
+---
+
+### IQ-016 · Walk me through your earned-time timer — how does it survive a service worker that dies every 30 seconds, and how cheat-resistant is it?
+
+| Area | Source |
+| --- | --- |
+| MV3/Security | ADR-0005, L-014, L-016 |
+
+- **60-second answer:** Earned time is a token — `{scope, expiresAt}` — written to chrome.storage, never a JavaScript timer, because an MV3 service worker gets killed after about 30 seconds idle and any `setTimeout` dies with it. Expiry runs on chrome.alarms, and the whole thing is reconcile-from-storage: on every worker wake I recompute which tokens are still live, re-add their allow-rules, and re-arm their alarms, so a missed alarm or a cold wake self-heals. Enforcement splits by how the site was gated — a declarativeNetRequest allow-rule for the redirect-gated entertainment domains, and a pipeline check for YouTube, where Shorts stay gated even during earned time. On cheat-resistance I'm honest: on an unmanaged device this is forgeable — it's storage a child with DevTools can edit — so I spent the security budget where it helps, grading the quiz in the worker with the answer key kept in session storage and never sent to the page. The real enforcement story is the managed, force-installed profile in the institutional phase.
+- **The follow-up they'll ask:** "If it's forgeable, why bother?" — Because the product's thesis is behavioural, not cryptographic: a signed token wouldn't help when the signing key lives on the same device the child controls, and for most kids earning honestly is lower-friction than the bypass. The controls I add — worker-side grading, storage indirection, reconcile-safe revocation — raise the effort without claiming to be tamper-proof, and I state that limit plainly in the ADR rather than overselling it.
+- **Evidence I can show:** docs/adr/0005-token-and-revocation.md, packages/extension/src/quiz/earned-time.ts (grant/reconcile/handleEarnedAlarm), the earned-time + grace tests, and the worker-side grading path in service_worker.ts.
+
+---
+
+### IQ-017 · How do you hide unsafe images before they render, without blurring the whole trusted web?
+
+| Area | Source |
+| --- | --- |
+| MV3/Perf | ADR-0011, L-002, L-017 |
+
+- **60-second answer:** The blur has to be live before the first paint, so it can't be JavaScript adding a class after images load — that races the decode. Instead the blur is a CSS rule scoped under an activation class on the `<html>` element, and the content script adds that class synchronously at document_start, before any `<img>` exists, so it's atomic with the initial paint. The hard part is deciding *whether* to activate without flashing trusted study pages — and I can't, because the trust signals live in chrome.storage, which is async with no synchronous read before paint. So it's two-phase: a synchronous check against a small bundled set of the pack's own allowed domains decides blur-or-not before paint, and the worker's async verdict a beat later either reveals the whole page or runs a per-element guard. The guard only ever *reveals* — it adds a safe-class to same-origin or allowlisted-CDN images using intrinsic sizes so there's no layout read, batched across animation frames — so every failure mode, from a worker crash to a missed mutation, degrades to "stays blurred," never a leak.
+- **The follow-up they'll ask:** "What still flashes?" — An origin the classifier allowed at runtime but that isn't in any pack's bundled allow_domains: its "allow" lives in the async verdict cache, unreadable before paint, so it blurs for one visit until the async reveal fires. I state that in the ADR rather than pretend the static set is complete; the honest framing is that the bundled set covers the common study domains flash-free and the async path corrects the tail.
+- **Evidence I can show:** docs/adr/0011-blur-activation-model.md, packages/extension/static/blur.css (html.gr-blur-active model), packages/extension/src/blur/{trusted-static,activate,guard}.ts, and the 500-image chunk-scheduler test.
+
+---
+*Next: IQ-018 (assigned by knowledge-capture skill)*

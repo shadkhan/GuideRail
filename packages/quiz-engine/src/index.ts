@@ -1,9 +1,11 @@
-// @guiderail/quiz-engine — STUB.
-//
-// The quiz gate + earned-time token machinery lands in spec 005 (produces
-// ADR-0005, token & revocation design). This placeholder exists now only so
-// the monorepo has the package the project map (specs/000-PROJECT-MAP.md) and
-// spec 002 R1 require, and so downstream imports resolve.
+// @guiderail/quiz-engine — the pure quiz + earned-time engine (spec 005,
+// produces ADR-0005). No chrome.* / DOM: selection, grading, and token time-math
+// live here; the extension owns the data (question banks), the storage, the DNR
+// rules, the alarms, and the page. See ADR-0005 for the token/revocation model.
 
-/** Placeholder — replaced by the real earned-time engine in spec 005. */
-export const QUIZ_ENGINE_STUB = true as const;
+export * from "./types.js";
+export * from "./constants.js";
+export * from "./weighting.js";
+export * from "./selector.js";
+export * from "./grader.js";
+export * from "./token.js";

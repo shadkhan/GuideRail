@@ -1,5 +1,5 @@
 # Spec: Quiz Gate & Earned Time
-Status: Draft · Date: 2026-07-17 · ADRs: will produce ADR-0005 (token & revocation design)
+Status: Implemented · Date: 2026-07-17 (implemented 2026-07-20) · ADRs: ADR-0005 (token & revocation design) — Accepted
 
 ## Goal (one sentence, user-visible outcome)
 A child hitting YouTube during study hours meets three fair questions from their own recent reading; passing earns a visible 30-minute timer that expires on its own — the product's soul, working end to end.
@@ -19,11 +19,18 @@ R7. All quiz interactions logged locally only (passed/failed/topic) for the futu
 - Anti-forgery beyond storage + alarms (documented residual risk per IQ-007)
 
 ## Acceptance criteria (how "done" is proven)
-- [ ] Test: selector weighting, grading matrix, token lifecycle (grant→active→expire→gate restored), alarm survives worker death
-- [ ] Evidence: screen recording of the full loop — block → quiz → pass → 30:00 badge → (accelerated clock) → gate restored with zero intervention
-- [ ] Evidence: worker killed mid-countdown via serviceworker-internals; timer and revocation still correct on revival
-- [ ] ADR-0005 written incl. Negative consequences (forgeable on unmanaged devices) stated plainly
+- [x] Test: selector weighting, grading matrix, token lifecycle (grant→active→expire→gate restored), alarm survives worker death — quiz-engine `{selector,grader,token,weighting}.test.ts`; extension `quiz/earned-time.test.ts` (grant/expire, reconcile-from-storage, **alarm-dispatch → revoke**), `service_worker.test.ts` (start→pass→grant, fail→grace→locked)
+- [~] Evidence: screen recording of the full loop (block → quiz → pass → badge → accelerated clock → gate restored). **Manual** (L-008 blocks CLI extension loading); the loop is covered by the worker-integration tests. Produced by hand via `pnpm ext:dev`.
+- [~] Evidence: worker killed mid-countdown; timer + revocation correct on revival. **Manual** (L-008); the survival property is proven by the reconcile-from-storage + alarm-dispatch tests (state lives in chrome.storage, not module scope).
+- [x] ADR-0005 written incl. Negative consequences (forgeable on unmanaged devices) stated plainly — `docs/adr/0005-token-and-revocation.md`
 
-## Open questions (must be empty before Status: Approved)
-- Q1: Pass threshold default — 2/3 (forgiving) or 3/3 (strict)? Recommend 2/3 for beta per the 1-star-review lesson.
-- Q2: Earned window length config range (15/30/45) — parent-set or fixed 30 for beta?
+## Resolved decisions (were open questions; resolved with user 2026-07-20)
+- Q1 (pass threshold): **2 of 3** (forgiving; grace mode catches 0–1). `PASS_THRESHOLD_DEFAULT`.
+- Q2 (earned window): **parent-set 15/30/45**, honored via `config.earnedWindowMinutes` (default **30**); the setter UI is spec 007.
+
+## Post-implementation notes
+- **Forgeable on unmanaged devices** is the documented residual risk (ADR-0005 Negative, IQ-007/IQ-016); grading is worker-side with answer keys in `chrome.storage.session` to raise the bar. Real enforcement is the Phase 4 managed profile.
+- Grace retry uses a stored retry-not-before timestamp (more robust across the ephemeral worker than a one-shot alarm; honors R3's "never setTimeout" intent).
+- Gate-list redirect captures the **origin** as `?src` (not the full URL) — DNR's regexSubstitution doesn't url-encode, so a full URL with `&` would truncate (L-015). The JS-side redirect keeps the full encoded URL.
+- `quiz.log` records pass/fail **and topics** (quizzed + missed) for the future digest (R7).
+- One shared **Class-7 bank** across all three seed packs for beta (all Class 7); per-board banks are a later refinement.

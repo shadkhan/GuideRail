@@ -22,6 +22,7 @@ export const buildOptions = {
   entryPoints: {
     service_worker: join(HERE, "src", "service_worker.ts"),
     content: join(HERE, "src", "content.ts"),
+    quiz_gate: join(HERE, "src", "quiz_gate.ts"),
   },
   outdir: OUT_DIR,
   bundle: true,

@@ -33,14 +33,33 @@ class FakeStorageArea {
 }
 
 const local = new FakeStorageArea();
+const session = new FakeStorageArea(); // spec 005: pending quiz attempts live here
 
 const chromeMock = {
-  storage: { local },
+  storage: { local, session },
   runtime: {
     getURL: (path: string) => `chrome-extension://guiderail-test/${path}`,
     onInstalled: { addListener: vi.fn() },
+    onStartup: { addListener: vi.fn() },
     onMessage: { addListener: vi.fn() },
     sendMessage: vi.fn(),
+  },
+  // Spec 004: the pipeline toggles DNR rules, redirects tabs on gate, and arms
+  // study-hours alarms. Minimal mocks so the worker paths run under Node.
+  declarativeNetRequest: {
+    updateDynamicRules: vi.fn(async () => {}),
+    updateSessionRules: vi.fn(async () => {}),
+  },
+  tabs: { update: vi.fn(async () => {}) },
+  alarms: {
+    create: vi.fn(async () => {}),
+    clear: vi.fn(async () => true),
+    onAlarm: { addListener: vi.fn() },
+  },
+  // Spec 005: earned-time countdown badge.
+  action: {
+    setBadgeText: vi.fn(async () => {}),
+    setBadgeBackgroundColor: vi.fn(async () => {}),
   },
 };
 
@@ -49,4 +68,5 @@ globalThis.chrome = chromeMock;
 
 beforeEach(async () => {
   await local.clear();
+  await session.clear();
 });

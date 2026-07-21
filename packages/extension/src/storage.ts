@@ -18,6 +18,9 @@
 // key is dynamic (per pack id), not a fixed member of StorageSchemaV1.
 
 import type { Pack } from "./pack/types.js";
+import type { StudySchedule } from "./pipeline/study-hours.js";
+import type { CachedClassify, Profile, QueueEntry, ReadingEntry } from "./pipeline/types.js";
+import type { EarnedToken } from "@guiderail/quiz-engine";
 
 export const STORAGE_VERSION = 1;
 
@@ -36,6 +39,36 @@ export interface StorageSchemaV1 {
   "core.timing": { cold_ms: number; at: string } | undefined;
   /** Id of the currently active pack (spec 003 R4/R6). Undefined until a pack is installed. */
   "active.pack": string | undefined;
+  /** Filtering posture (spec 004 R2). Undefined ⇒ treated as "consumer". */
+  "config.profile": Profile | undefined;
+  /** Per-weekday study-hours schedule (spec 004 R1/Q1). Undefined ⇒ never active. */
+  "config.studyHours": StudySchedule | undefined;
+  /** Per-origin memoized classify results (spec 004 R3, TTL 24h). */
+  "verdict.cache": Record<string, CachedClassify> | undefined;
+  /** Local background-classification queue — sanitized metadata (spec 004 R6 stub). */
+  "classify.queue": QueueEntry[] | undefined;
+  /** Reading-history buffer feeding quiz topic-weighting (spec 004A A3, spec 005). */
+  "reading.history": ReadingEntry[] | undefined;
+  /** YouTube channel-id resolution failures, persisted for selector maintenance (spec 004A A3). */
+  "yt.resolutionFailures": Array<{ url: string; at: string }> | undefined;
+  /** Earned-window length in minutes (spec 005 Q2; setter is spec 007). Undefined ⇒ 30. */
+  "config.earnedWindowMinutes": number | undefined;
+  /** Active earned-time tokens, keyed by scope (registrable domain) — spec 005 R4. */
+  "earned.tokens": Record<string, EarnedToken> | undefined;
+  /** Per-scope grace-mode retry-not-before timestamps (epoch ms) — spec 005 R3. */
+  "quiz.retryAt": Record<string, number> | undefined;
+  /** Local-only quiz attempt log for the future digest (spec 005 R7): passed/failed + topics. */
+  "quiz.log":
+    | Array<{
+        at: string;
+        scope: string;
+        passed: boolean;
+        correctCount: number;
+        total: number;
+        topics: string[];
+        missedTopics: string[];
+      }>
+    | undefined;
 }
 
 type Key = keyof StorageSchemaV1;

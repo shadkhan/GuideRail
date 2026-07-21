@@ -1,21 +1,84 @@
 <!doctype html>
 <!--
-  Quiz gate — PLACEHOLDER (spec 002 scaffold).
-
-  The real earn-time quiz UI is spec 005. This file exists now only because the
-  manifest lists quiz_gate.html in web_accessible_resources, and web-ext lint
-  (and Chrome) expect the referenced resource to exist. No logic here yet.
+  Quiz gate (spec 005). The earn-time quiz UI. All logic is in quiz_gate.js
+  (bundled from src/quiz_gate.ts) — the extension_pages CSP forbids inline
+  script, so nothing runs inline here. Styling is the "school exercise book"
+  language: paper, ink navy, one red margin rule, earned-green success.
 -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GuideRail — Quiz Gate</title>
+    <title>GuideRail — Earn your time</title>
+    <style>
+      :root {
+        --ink: #1b2a4a;
+        --muted: #5a6a8a;
+        --ruled: #c7d6ea;
+        --red: #d64541;
+        --paper: #fbfbf6;
+        --green: #2e7d4f;
+        --green-soft: #e7f3ec;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Karla", system-ui, -apple-system, sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 32px 16px;
+      }
+      main {
+        width: 100%;
+        max-width: 560px;
+        background: #fff;
+        border: 1px solid var(--ruled);
+        border-left: 6px solid var(--red);
+        border-radius: 10px;
+        box-shadow: 8px 8px 0 var(--ruled);
+        padding: 28px 28px 20px;
+      }
+      .eyebrow {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 12px;
+        color: var(--red);
+        margin: 0 0 4px;
+      }
+      h1 { font-size: 26px; margin: 0 0 6px; }
+      .lede { color: var(--muted); margin: 0 0 20px; }
+      fieldset { border: 1px solid var(--ruled); border-radius: 8px; margin: 0 0 16px; padding: 14px 16px; }
+      legend { font-weight: 700; padding: 0 6px; }
+      .opt { display: flex; align-items: center; gap: 10px; padding: 6px 0; cursor: pointer; }
+      .opt input { accent-color: var(--red); width: 18px; height: 18px; }
+      button {
+        font: inherit; font-weight: 700; cursor: pointer; border-radius: 8px;
+        padding: 12px 18px; border: 1px solid var(--ink); background: var(--ink); color: #fff;
+      }
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+      button.ghost { background: #fff; color: var(--ink); }
+      .timer {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 44px; font-weight: 700; color: var(--green);
+        background: var(--green-soft); border-radius: 10px; text-align: center;
+        padding: 18px; margin: 8px 0 18px;
+      }
+      .badge-pass { color: var(--green); font-weight: 700; }
+      .badge-grace { color: var(--red); font-weight: 700; }
+      .revisit { background: #fff7f7; border: 1px solid var(--red); border-radius: 8px; padding: 10px 14px; margin: 12px 0; }
+      footer { margin-top: 18px; border-top: 1px dashed var(--ruled); padding-top: 12px; }
+      footer a { color: var(--muted); font-size: 13px; }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>GuideRail</h1>
-      <p>Quiz gate placeholder — the earn-time quiz lands in spec 005.</p>
+    <main id="app" aria-live="polite">
+      <p class="eyebrow">GuideRail</p>
+      <h1>Loading your questions…</h1>
     </main>
+    <script src="quiz_gate.js"></script>
   </body>
 </html>

@@ -11,7 +11,9 @@
     "lint": "eslint src",
     "type-check": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@guiderail/quiz-engine": "workspace:*"
+  },
   "devDependencies": {
     "@types/chrome": "^0.0.287",
     "ajv": "^8.17.1",

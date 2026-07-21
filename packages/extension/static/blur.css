@@ -1,35 +1,40 @@
-/* Blur blanket — declared in manifest.json's content_scripts.css and
-   applied at document_start (before the HTML parser processes any page
-   content). This means images and video blur BEFORE they can render
-   even one frame.
+/* Blur blanket (spec 006) — declared in manifest.json's content_scripts.css and
+   applied at document_start (before the HTML parser processes any page content).
+   Media blurs BEFORE it can render even one frame.
 
-   Learning L-002 (docs/LEARNINGS.md): the JS content script NEVER adds
-   the .gr-blur class — CSS does that. JS only ADDS .gr-safe (which
-   overrides the blur) after the service worker validates the origin.
-   Reason: JS-adds-blur creates a race between image load and JS
-   execution; CSS-adds-blur is atomic with the initial paint.
+   Activation model (spec 006 R1): blur applies to ALL img/video ONLY while the
+   <html> element carries the activation class `.gr-blur-active`, which the
+   content script sets synchronously at document_start when the origin isn't
+   statically trusted. Per-element `.gr-safe` (added by the content script AFTER
+   validation) overrides the blur for that one element.
 
-   Failure mode by design: if validation never happens or the worker
-   crashes, images stay blurred — visible degradation, never a leak. */
+   Learning L-002 (docs/LEARNINGS.md): the content script NEVER blurs an element
+   directly — CSS does, via the ancestor `.gr-blur-active` class set before any
+   img exists. JS only ever ADDS `.gr-safe` (reveal) or removes the whole-page
+   activation class. Reason: a JS-adds-blur-per-element design races the image
+   load; the ancestor-class design is atomic with the initial paint.
 
-img.gr-blur,
-video.gr-blur {
+   Failure mode by design: if validation never happens or the worker crashes,
+   media stays blurred — visible degradation, never a leak. See ADR-0011. */
+
+html.gr-blur-active img,
+html.gr-blur-active video {
   filter: blur(30px) brightness(0.5);
   transition: filter 120ms ease;
 }
 
-img.gr-safe,
-video.gr-safe {
+html.gr-blur-active img.gr-safe,
+html.gr-blur-active video.gr-safe {
   filter: none;
 }
 
-/* Respect the user's OS-level reduced-motion preference — no filter
-   transition for anyone who's opted out of animated UI. */
+/* Respect the user's OS-level reduced-motion preference — no filter transition
+   for anyone who's opted out of animated UI (spec 006 R7). */
 @media (prefers-reduced-motion: reduce) {
-  img.gr-blur,
-  video.gr-blur,
-  img.gr-safe,
-  video.gr-safe {
+  html.gr-blur-active img,
+  html.gr-blur-active video,
+  html.gr-blur-active img.gr-safe,
+  html.gr-blur-active video.gr-safe {
     transition: none;
   }
 }

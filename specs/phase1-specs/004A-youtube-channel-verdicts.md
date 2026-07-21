@@ -1,5 +1,5 @@
 # Spec 004 — Amendment A: YouTube channel-aware verdicts
-Status: Draft amendment · Date: 2026-07-18 · Applies to: specs/phase1-specs/004-filtering-engine.md · ADRs: produces ADR-0010 (YouTube policy: the classroom-playground problem)
+Status: Implemented (allowlist inert until 003A channel_ids are verified) · Date: 2026-07-18 (implemented 2026-07-20) · Applies to: specs/phase1-specs/004-filtering-engine.md · ADRs: produces ADR-0010 (YouTube policy: the classroom-playground problem) — Accepted
 
 ## Why
 YouTube is both the largest study venue in India and the primary distraction target. Domain-level verdicts fail in both directions. The pipeline gains one origin-specific resolution step: on YouTube, the verdict unit is the CHANNEL (and content format), not the domain.
@@ -19,12 +19,16 @@ A5. Channel resolution budget: ≤1ms added to the existing extraction pass (str
 A6. No core-wasm changes. The classify() path is untouched; YouTube resolution is pure TS pipeline logic + pack set lookup.
 
 ## Acceptance criteria additions
-- [ ] Test matrix: allowed-channel watch (allow + correct subject tags) · non-allowed watch (gate) · shorts (gate by default) · search/homepage (allow_navigation, no history entry) · embed on allowed study site (inherits allow) · SPA hop allowed→non-allowed (gate re-triggers) · metadata-resolution failure (gate + logged)
-- [ ] Evidence recording: Magnet Brains lecture plays untouched during study hours; immediately clicking a music video from the sidebar triggers the quiz gate without page reload
-- [ ] Evidence: reading-history buffer contains the lecture's subject tags and NOT the search/homepage visits
-- [ ] ADR-0010 written: the classroom-playground problem, format-level Shorts decision, fail-closed-on-YouTube exception to the consumer fail-open default (explicitly reconciled with ADR-0001), SPA limitation of DNR
-- [ ] INTERVIEW_BANK: add IQ entry — "How do you filter YouTube without blocking the classroom?" (this feature is a portfolio headline)
+- [x] Test matrix: allowed-channel watch (allow + tags) · non-allowed watch (gate) · shorts (gate) · search/homepage (allow_navigation, no history) · embed (inherit) · SPA hop re-trigger · resolution failure (gate + logged) — `packages/extension/src/pipeline/youtube.test.ts`, `policy.test.ts`, `service_worker.test.ts`
+- [~] Evidence recording: Magnet Brains lecture plays untouched; sidebar music video gates without reload. **Manual step** (L-008 blocks CLI extension loading) — the behavior is unit + integration tested; the recording is produced by hand via `pnpm ext:dev`, and requires real channel_ids first (see status note).
+- [x] Evidence: reading-history contains lecture subject tags and NOT search/homepage visits — `policy.test.ts` (allow-channel records tags; allow_navigation records nothing)
+- [x] ADR-0010 written (classroom-playground, format-level Shorts, fail-closed-on-YouTube reconciled with ADR-0001, SPA/DNR limitation) — `docs/adr/0010-youtube-policy.md`
+- [x] INTERVIEW_BANK: IQ entry "How do you filter YouTube without blocking the classroom?" — `docs/INTERVIEW_BANK.md` IQ-015
 
-## Open questions (resolve in spec interview)
-- AQ1: Should allowed-channel viewing during study hours accrue toward quiz topic-weighting at full weight, or reduced (video vs reading)? (Recommend full weight for beta; video IS studying in India.)
-- AQ2: Earned-time on YouTube — origin-wide (A4, simple) vs still-gate-Shorts-during-earned-time (stricter)? Family-culture question; recommend origin-wide + revisit on beta feedback.
+## Resolved decisions (were open questions; resolved with user 2026-07-19)
+- AQ1: **full weight** — an allowed-channel view records its subject tags to reading-history at the same weight as read text (video IS studying in India).
+- AQ2: **origin-wide earned-time EXCEPT Shorts** — earned time (spec 005) will open watch/nav origin-wide, but Shorts stay gated by format regardless (implemented as a format-level verdict that runs independent of any earned-time token; ADR-0010).
+
+## Post-implementation notes
+- A3 resolution-failure logging is **persisted** (`storage["yt.resolutionFailures"]`, `pipeline/yt-diagnostics.ts`), not just a console line, so a broken channelId selector is detectable after the fact.
+- The allowlist is **inert until seed-pack channel_ids are verified** (carried over from 003A A5 — they are visible placeholders). Every `/watch` currently gates (fail-closed), which is safe but non-functional as an *allow* path until real `UC…` ids are curated.
