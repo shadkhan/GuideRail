@@ -50,16 +50,17 @@ const chromeMock = {
     updateDynamicRules: vi.fn(async () => {}),
     updateSessionRules: vi.fn(async () => {}),
   },
-  tabs: { update: vi.fn(async () => {}) },
+  tabs: { update: vi.fn(async () => {}), create: vi.fn(async () => {}) },
   alarms: {
     create: vi.fn(async () => {}),
     clear: vi.fn(async () => true),
     onAlarm: { addListener: vi.fn() },
   },
-  // Spec 005: earned-time countdown badge.
+  // Spec 005 earned-time badge; spec 007 toolbar-click opens options.
   action: {
     setBadgeText: vi.fn(async () => {}),
     setBadgeBackgroundColor: vi.fn(async () => {}),
+    onClicked: { addListener: vi.fn() },
   },
 };
 

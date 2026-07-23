@@ -28,10 +28,8 @@ const PACK: Pack = {
   yt_policy: { shorts: "gate", embeds: "inherit_parent" },
 };
 
-const NOW = new Date(2026, 6, 20, 17, 0);
 const deps: EvalDeps = {
-  now: NOW,
-  schedule: { [NOW.getDay()]: [{ start: "00:00", end: "23:59" }] },
+  studyActive: true,
   profile: "consumer",
   pack: PACK,
   classify: async () => ({ verdict: "allow" as ClassifyVerdict, matches: ["math"] }),
@@ -40,6 +38,7 @@ const deps: EvalDeps = {
   enqueue: async () => {},
   recordReading: async () => {},
   hasEarnedTime: async () => false,
+  isGateListed: () => false,
 };
 
 function p95(times: number[]): number {

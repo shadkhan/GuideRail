@@ -1,0 +1,150 @@
+/* Shared styles for the options + rules extension pages (spec 007 R6).
+   Exercise-book language; colors chosen to meet WCAG AA contrast on paper. */
+:root {
+  --ink: #1b2a4a;
+  --muted: #4a5878;
+  --ruled: #c7d6ea;
+  --red: #d64541;
+  --paper: #fbfbf6;
+  --green: #2e7d4f;
+  --green-soft: #e7f3ec;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Karla", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+}
+main {
+  width: 100%;
+  max-width: 640px;
+}
+.card {
+  background: #fff;
+  border: 1px solid var(--ruled);
+  border-left: 6px solid var(--red);
+  border-radius: 10px;
+  box-shadow: 8px 8px 0 var(--ruled);
+  padding: 24px 26px;
+  margin-bottom: 20px;
+}
+.eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  color: var(--red);
+  margin: 0 0 4px;
+}
+h1 {
+  font-size: 26px;
+  margin: 0 0 6px;
+}
+h2 {
+  font-size: 19px;
+  margin: 0 0 10px;
+}
+p {
+  margin: 0 0 12px;
+}
+.muted {
+  color: var(--muted);
+}
+label {
+  display: block;
+  font-weight: 700;
+  margin: 12px 0 4px;
+}
+input[type="text"],
+input[type="password"],
+input[type="time"],
+input[type="number"],
+select {
+  font: inherit;
+  padding: 9px 11px;
+  border: 1px solid var(--ruled);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 320px;
+  background: #fff;
+  color: var(--ink);
+}
+button {
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 11px 18px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: #fff;
+  margin: 6px 8px 0 0;
+}
+button.ghost {
+  background: #fff;
+  color: var(--ink);
+}
+button.danger {
+  border-color: var(--red);
+  background: #fff;
+  color: var(--red);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Visible keyboard focus everywhere (R6 keyboard navigable). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--red);
+  outline-offset: 2px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 4px 0;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green-soft);
+  color: var(--green);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.error {
+  color: var(--red);
+  font-weight: 700;
+}
+.steps {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed var(--ruled);
+  padding: 6px 0;
+}

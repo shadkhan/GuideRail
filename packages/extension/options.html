@@ -1,0 +1,21 @@
+<!doctype html>
+<!--
+  Options page (spec 007): first-run onboarding wizard, then PIN-gated parent
+  settings. All logic is in options.js (bundled from src/options.ts) — the
+  extension_pages CSP forbids inline script. No settings are written here
+  directly; the page messages the worker (R7).
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GuideRail — Setup & Settings</title>
+    <link rel="stylesheet" href="static/pages.css" />
+  </head>
+  <body>
+    <main id="app" aria-live="polite">
+      <div class="card"><p class="eyebrow">GuideRail</p><h1>Loading…</h1></div>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

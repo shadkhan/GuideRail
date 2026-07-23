@@ -11,11 +11,10 @@
 // The rule id comes from the reserved registry range — never a magic literal.
 
 import { DNR_RULES } from "../dnr/registry.js";
-import { GATE_LIST } from "./gate-list.js";
 
 const GATE_RULE_ID = DNR_RULES.QUIZ_GATE_REDIRECT.id;
 
-function gateRedirectRule(): chrome.declarativeNetRequest.Rule {
+function gateRedirectRule(domains: string[]): chrome.declarativeNetRequest.Rule {
   const target = chrome.runtime.getURL("quiz_gate.html");
   return {
     id: GATE_RULE_ID,
@@ -29,7 +28,7 @@ function gateRedirectRule(): chrome.declarativeNetRequest.Rule {
       redirect: { regexSubstitution: `${target}?src=\\1` },
     },
     condition: {
-      requestDomains: [...GATE_LIST],
+      requestDomains: domains,
       regexFilter: "^(https?://[^/]+)",
       resourceTypes: ["main_frame" as chrome.declarativeNetRequest.ResourceType],
     },
@@ -38,12 +37,13 @@ function gateRedirectRule(): chrome.declarativeNetRequest.Rule {
 
 /**
  * Install or remove the gate-list redirect rule so it is present exactly when
- * `withinStudyHours` is true. Idempotent: the remove-then-add form means calling
+ * `active` is true, matching the given EFFECTIVE gate-list `domains` (base ±
+ * parent edits, spec 007 R3). Idempotent: the remove-then-add form means calling
  * it repeatedly (worker wake, alarm, install) converges to the right state.
  */
-export async function reconcileGateRules(withinStudyHours: boolean): Promise<void> {
+export async function reconcileGateRules(active: boolean, domains: string[]): Promise<void> {
   await chrome.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: [GATE_RULE_ID],
-    addRules: withinStudyHours ? [gateRedirectRule()] : [],
+    addRules: active && domains.length > 0 ? [gateRedirectRule(domains)] : [],
   });
 }

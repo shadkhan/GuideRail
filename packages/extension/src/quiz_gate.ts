@@ -32,8 +32,13 @@ function header(title: string, lede?: string): void {
   if (lede) app.append(h("p", { class: "lede", text: lede }));
 }
 function rulesFooter(): HTMLElement {
-  // R6: child transparency — link to the rules screen (spec 007).
-  const a = h("a", { href: "#rules", text: "Why am I seeing this? See my rules." });
+  // Child transparency — link to the rules screen (spec 005 R6 / spec 007 R4).
+  const a = h("a", {
+    href: chrome.runtime.getURL("rules.html"),
+    target: "_blank",
+    rel: "noopener",
+    text: "Why am I seeing this? See my rules.",
+  });
   return h("footer", {}, a);
 }
 function siteLabel(): string {

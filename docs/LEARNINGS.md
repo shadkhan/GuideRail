@@ -151,4 +151,14 @@ Concepts learned while building, for future study and behind-the-scenes understa
 **Related:** L-002, L-009, ADR-0011
 
 ---
-*Next: L-018 (assigned by knowledge-capture skill)*
+
+### L-018 · A PIN over editable local storage gates the UI, not the data
+**Date:** 2026-07-22 · **Area:** Security · **Depth:** could-teach-it
+**What I learned:** Adding a parent PIN felt like access control, but on an unmanaged Chrome profile it isn't. The settings it "protects" live in `chrome.storage.local`, which is readable/writable via DevTools — and worse, the worker's `settings.update` message handler applies any well-formed mutation without checking a verified-PIN state, so the single easiest bypass is to **replay a `settings.update` runtime message** with zero PIN knowledge (no storage-schema decoding needed). PBKDF2+salt (never plaintext) and a 5-try lockout are still worth doing — they stop plaintext leakage and online guessing — but the honest framing is "the PIN gates the UI, not the data." I deliberately did NOT add a worker-side unlock gate, because that gate (a storage.session flag) is itself editable on an unmanaged profile, so it would be security theatre.
+**Why it works (behind the scenes):** the trust boundary is the device, not the message channel; when the adversary owns the runtime, every client-side check is advisory. Real enforcement needs a managed/force-installed profile (Phase 4).
+**Where it bit us / how discovered:** spec-reviewer flagged that PIN-gating was client-side only and the message-replay vector wasn't named in the ADR — I named it explicitly in ADR-0012's Negative rather than papering over it.
+**Go deeper:** chrome managed-storage / force-install policies; MV3 message-sender verification (`sender.id`) and its limits against same-extension replay.
+**Related:** ADR-0012, ADR-0005, ADR-0002, IQ-007, IQ-018
+
+---
+*Next: L-019 (assigned by knowledge-capture skill)*

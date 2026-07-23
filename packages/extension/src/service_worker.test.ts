@@ -285,3 +285,53 @@ describe("quiz gate + earned time (spec 005)", () => {
     expect(again.kind).toBe("quiz.locked");
   });
 });
+
+describe("settings + PIN handlers (spec 007)", () => {
+  it("settings.get returns a snapshot with the available packs", async () => {
+    await seedActivePack();
+    const snap = (await send({ kind: "settings.get" })) as {
+      kind: string;
+      availablePacks: unknown[];
+      activePack: { id: string };
+    };
+    expect(snap.kind).toBe("settings.snapshot");
+    expect(snap.availablePacks.length).toBeGreaterThanOrEqual(3);
+    expect(snap.activePack.id).toBe(DEFAULT_PACK_ID);
+  });
+
+  it("pin.set then pin.verify accepts the right PIN, rejects a wrong one", async () => {
+    await seedActivePack();
+    expect(await send({ kind: "pin.set", pin: "1234" })).toMatchObject({ kind: "settings.ok" });
+    expect(await send({ kind: "pin.verify", pin: "1234" })).toMatchObject({ ok: true });
+    expect(await send({ kind: "pin.verify", pin: "9999" })).toMatchObject({ ok: false });
+  });
+
+  it("rejects a malformed PIN on set", async () => {
+    await seedActivePack();
+    expect(await send({ kind: "pin.set", pin: "12" })).toMatchObject({ kind: "error" });
+  });
+
+  it("locks after 5 wrong attempts, refusing even the correct PIN", async () => {
+    await seedActivePack();
+    await send({ kind: "pin.set", pin: "1234" });
+    let last: { lockedUntil?: number } = {};
+    for (let i = 0; i < 5; i++) last = (await send({ kind: "pin.verify", pin: "0000" })) as { lockedUntil?: number };
+    expect(last.lockedUntil).toBeGreaterThan(Date.now());
+    expect(await send({ kind: "pin.verify", pin: "1234" })).toMatchObject({ ok: false });
+  });
+
+  it("pauseToday shows in the snapshot (R3)", async () => {
+    await seedActivePack();
+    await enableStudyHours();
+    await send({ kind: "settings.update", update: { op: "pauseToday" } });
+    const snap = (await send({ kind: "settings.get" })) as { pausedToday: boolean };
+    expect(snap.pausedToday).toBe(true);
+  });
+
+  it("gateAdd puts a new domain on the effective gate-list (R3)", async () => {
+    await seedActivePack();
+    await send({ kind: "settings.update", update: { op: "gateAdd", domain: "example-fun.com" } });
+    const snap = (await send({ kind: "settings.get" })) as { gateList: string[] };
+    expect(snap.gateList).toContain("example-fun.com");
+  });
+});

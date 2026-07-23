@@ -8,9 +8,7 @@
 // gate-list → WASM classify → consumer fail-open / institutional fail-closed.
 
 import type { Pack } from "../pack/types.js";
-import type { StudySchedule } from "./study-hours.js";
-import { isWithinWindow } from "./study-hours.js";
-import { hostInList, isGateListed } from "./gate-list.js";
+import { hostInList } from "./gate-list.js";
 import { isYouTubeHost, resolveYouTube, youtubeVerdict } from "./youtube.js";
 import type { CachedClassify, ClassifyVerdict, PolicyVerdict, Profile } from "./types.js";
 
@@ -23,8 +21,8 @@ export interface EvalInput {
 }
 
 export interface EvalDeps {
-  now: Date;
-  schedule: StudySchedule;
+  /** Is protection active now? The single isStudyTime() source (spec 007 R2). */
+  studyActive: boolean;
   profile: Profile;
   pack: Pack | undefined;
   classify: (text: string) => Promise<{ verdict: ClassifyVerdict; matches: string[] }>;
@@ -36,6 +34,8 @@ export interface EvalDeps {
   recordReading: (tags: string[]) => Promise<void>;
   /** True when a valid earned-time token covers this host (spec 005). */
   hasEarnedTime: (host: string) => Promise<boolean>;
+  /** True when host is on the EFFECTIVE gate-list (base ± parent edits, spec 007 R3). */
+  isGateListed: (host: string) => boolean;
 }
 
 export interface EvalResult {
@@ -89,8 +89,8 @@ export function classifyText(input: EvalInput): string {
 }
 
 export async function evaluate(input: EvalInput, deps: EvalDeps): Promise<EvalResult> {
-  // 1. Study-hours gate — outside every window the pipeline is a no-op.
-  if (!isWithinWindow(deps.schedule, deps.now)) return allow([], "outside-study-hours");
+  // 1. Study-time gate — when protection is off the pipeline is a no-op (R2).
+  if (!deps.studyActive) return allow([], "outside-study-hours");
 
   const host = hostOf(input.url);
   if (host === null) return allow([], "unparseable-url");
@@ -123,8 +123,8 @@ export async function evaluate(input: EvalInput, deps: EvalDeps): Promise<EvalRe
     }
   }
 
-  // 3. Curated entertainment gate-list.
-  if (isGateListed(host)) return gate("gate-list");
+  // 3. Effective gate-list (curated base ± parent edits, spec 007 R3).
+  if (deps.isGateListed(host)) return gate("gate-list");
 
   // 4. WASM classify (memoized per-origin, R3). No active pack ⇒ can't classify.
   if (!deps.pack) {

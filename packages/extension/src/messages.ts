@@ -91,6 +91,43 @@ export type QuizResultResponse = {
   retryAtMs?: number;
 };
 
+// Onboarding & parent settings (spec 007). The options/rules pages never write
+// storage directly (R7) — they message the worker, which validates and persists.
+import type { StudySchedule } from "./pipeline/study-hours.js";
+import type { OnboardingState } from "./settings/onboarding.js";
+
+/** A single settings mutation. The worker maps each `op` onto a storage wrapper. */
+export type SettingsUpdate =
+  | { op: "child"; name: string; packId: string }
+  | { op: "studyHours"; schedule: StudySchedule }
+  | { op: "earnedWindow"; minutes: number }
+  | { op: "gateAdd"; domain: string }
+  | { op: "gateRemove"; domain: string }
+  | { op: "pauseToday" }
+  | { op: "onboarding"; state: OnboardingState };
+
+export type SettingsGetRequest = { kind: "settings.get" };
+export type SettingsUpdateRequest = { kind: "settings.update"; update: SettingsUpdate };
+export type PinSetRequest = { kind: "pin.set"; pin: string };
+export type PinVerifyRequest = { kind: "pin.verify"; pin: string };
+
+/** Everything the options + rules pages render (spec 007 R1/R3/R4). */
+export type SettingsSnapshotResponse = {
+  kind: "settings.snapshot";
+  onboarding: OnboardingState | null;
+  hasPin: boolean;
+  childName: string | null;
+  activePack: { id: string; board: string; grade_band: string } | null;
+  availablePacks: Array<{ id: string; board: string; grade_band: string }>;
+  studyHours: StudySchedule;
+  earnedWindowMinutes: number;
+  gateList: string[];
+  pausedToday: boolean;
+  earnedRemainingMinutes: number;
+};
+export type SettingsOkResponse = { kind: "settings.ok" };
+export type PinResultResponse = { kind: "pin.result"; ok: boolean; lockedUntil?: number };
+
 // Returned when a handler receives an unrecognized / malformed payload, or when
 // classification itself fails. Keeps the channel typed even on the error path.
 export type ErrorResponse = {
@@ -108,6 +145,13 @@ export type Message =
   | QuizLockedResponse
   | QuizSubmitRequest
   | QuizResultResponse
+  | SettingsGetRequest
+  | SettingsUpdateRequest
+  | PinSetRequest
+  | PinVerifyRequest
+  | SettingsSnapshotResponse
+  | SettingsOkResponse
+  | PinResultResponse
   | ErrorResponse;
 
 export type MessageKind = Message["kind"];
@@ -210,6 +254,67 @@ export function isQuizResultResponse(x: unknown): x is QuizResultResponse {
   );
 }
 
+// --- settings / pin / onboarding guards (spec 007 R7) -----------------------
+export function isSettingsGetRequest(x: unknown): x is SettingsGetRequest {
+  return isRecord(x) && x.kind === "settings.get";
+}
+
+const HM_RE = /^\d{2}:\d{2}$/;
+function isValidSchedule(s: unknown): boolean {
+  if (!isRecord(s)) return false;
+  for (const [weekday, windows] of Object.entries(s)) {
+    if (!/^[0-6]$/.test(weekday) || !Array.isArray(windows)) return false;
+    for (const w of windows) {
+      if (!isRecord(w) || typeof w.start !== "string" || typeof w.end !== "string") return false;
+      if (!HM_RE.test(w.start) || !HM_RE.test(w.end)) return false;
+    }
+  }
+  return true;
+}
+
+function isValidSettingsUpdate(u: unknown): u is SettingsUpdate {
+  if (!isRecord(u)) return false;
+  switch (u.op) {
+    case "child":
+      return typeof u.name === "string" && typeof u.packId === "string";
+    case "studyHours":
+      return isValidSchedule(u.schedule);
+    case "earnedWindow":
+      return typeof u.minutes === "number";
+    case "gateAdd":
+    case "gateRemove":
+      return typeof u.domain === "string";
+    case "pauseToday":
+      return true;
+    case "onboarding":
+      return isRecord(u.state) && typeof (u.state as { step?: unknown }).step === "string";
+    default:
+      return false;
+  }
+}
+
+export function isSettingsUpdateRequest(x: unknown): x is SettingsUpdateRequest {
+  return isRecord(x) && x.kind === "settings.update" && isValidSettingsUpdate(x.update);
+}
+
+export function isPinSetRequest(x: unknown): x is PinSetRequest {
+  return isRecord(x) && x.kind === "pin.set" && typeof x.pin === "string";
+}
+
+export function isPinVerifyRequest(x: unknown): x is PinVerifyRequest {
+  return isRecord(x) && x.kind === "pin.verify" && typeof x.pin === "string";
+}
+
+export function isSettingsSnapshotResponse(x: unknown): x is SettingsSnapshotResponse {
+  return isRecord(x) && x.kind === "settings.snapshot";
+}
+export function isSettingsOkResponse(x: unknown): x is SettingsOkResponse {
+  return isRecord(x) && x.kind === "settings.ok";
+}
+export function isPinResultResponse(x: unknown): x is PinResultResponse {
+  return isRecord(x) && x.kind === "pin.result" && typeof x.ok === "boolean";
+}
+
 export function isErrorResponse(x: unknown): x is ErrorResponse {
   return isRecord(x) && x.kind === "error" && typeof x.message === "string";
 }
@@ -225,8 +330,55 @@ export function isMessage(x: unknown): x is Message {
     isQuizLockedResponse(x) ||
     isQuizSubmitRequest(x) ||
     isQuizResultResponse(x) ||
+    isSettingsGetRequest(x) ||
+    isSettingsUpdateRequest(x) ||
+    isPinSetRequest(x) ||
+    isPinVerifyRequest(x) ||
+    isSettingsSnapshotResponse(x) ||
+    isSettingsOkResponse(x) ||
+    isPinResultResponse(x) ||
     isErrorResponse(x)
   );
+}
+
+// --- Typed send wrappers for the options + rules pages (spec 007) -----------
+export async function sendSettingsGet(): Promise<SettingsSnapshotResponse> {
+  const res: unknown = await chrome.runtime.sendMessage({
+    kind: "settings.get",
+  } satisfies SettingsGetRequest);
+  if (isSettingsSnapshotResponse(res)) return res;
+  if (isErrorResponse(res)) throw new Error(`settings.get failed: ${res.message}`);
+  throw new Error("settings.get: unexpected response shape");
+}
+
+export async function sendSettingsUpdate(update: SettingsUpdate): Promise<void> {
+  const res: unknown = await chrome.runtime.sendMessage({
+    kind: "settings.update",
+    update,
+  } satisfies SettingsUpdateRequest);
+  if (isSettingsOkResponse(res)) return;
+  if (isErrorResponse(res)) throw new Error(`settings.update failed: ${res.message}`);
+  throw new Error("settings.update: unexpected response shape");
+}
+
+export async function sendPinSet(pin: string): Promise<void> {
+  const res: unknown = await chrome.runtime.sendMessage({
+    kind: "pin.set",
+    pin,
+  } satisfies PinSetRequest);
+  if (isSettingsOkResponse(res)) return;
+  if (isErrorResponse(res)) throw new Error(`pin.set failed: ${res.message}`);
+  throw new Error("pin.set: unexpected response shape");
+}
+
+export async function sendPinVerify(pin: string): Promise<PinResultResponse> {
+  const res: unknown = await chrome.runtime.sendMessage({
+    kind: "pin.verify",
+    pin,
+  } satisfies PinVerifyRequest);
+  if (isPinResultResponse(res)) return res;
+  if (isErrorResponse(res)) throw new Error(`pin.verify failed: ${res.message}`);
+  throw new Error("pin.verify: unexpected response shape");
 }
 
 // --- Typed send wrappers for the quiz page (spec 005) -----------------------

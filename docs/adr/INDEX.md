@@ -10,6 +10,7 @@
 | 0006 | llm-proxy: TypeScript + Hono on Cloudflare Workers | Accepted | 2026-07-17 |
 | 0010 | YouTube verdicts are channel-level, Shorts gate by format, unresolved watches fail closed | Accepted | 2026-07-20 |
 | 0011 | Blur activated by an <html> class at document_start, gated by a static trusted set, refined async | Accepted | 2026-07-21 |
+| 0012 | Parent PIN is PBKDF2-hashed with an attempt lockout — a speed bump on unmanaged devices, not a vault | Accepted | 2026-07-22 |
 
 > **Spec 004 (filtering engine) gate met:** ADR-0001 and ADR-0002 are the
 > required design inputs before spec 004; both are now Accepted. Their reasoning

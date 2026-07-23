@@ -22,24 +22,52 @@ import {
   isPageEvalRequest,
   isQuizStartRequest,
   isQuizSubmitRequest,
+  isSettingsGetRequest,
+  isSettingsUpdateRequest,
+  isPinSetRequest,
+  isPinVerifyRequest,
   type ClassifyResponse,
   type ErrorResponse,
   type PageEvalResponse,
   type QuizQuestionsResponse,
   type QuizResultResponse,
+  type SettingsSnapshotResponse,
+  type SettingsUpdate,
 } from "./messages.js";
 import { cacheWasmBytes, ensureCore } from "./core.js";
 import * as storage from "./storage.js";
 import { runMigrations } from "./storage.js";
-import { classify, installSeedPacks, getActivePack } from "./pack/loader.js";
+import {
+  classify,
+  installSeedPacks,
+  getActivePack,
+  listPacks,
+  setActivePack,
+} from "./pack/loader.js";
 import { evaluate, type EvalDeps } from "./pipeline/policy.js";
 import { getCached, putCached } from "./pipeline/verdict-cache.js";
 import { enqueueForClassification } from "./pipeline/queue.js";
 import { appendReading } from "./pipeline/reading-history.js";
 import { reconcileGateRules } from "./pipeline/dnr.js";
-import { isWithinWindow, nextTransition } from "./pipeline/study-hours.js";
+import { nextTransition } from "./pipeline/study-hours.js";
 import { recordResolutionFailure } from "./pipeline/yt-diagnostics.js";
 import { shouldReveal } from "./blur/activate.js";
+import { DEFAULT_SCHEDULE, isStudyTime, localDateKey } from "./settings/study-time.js";
+import {
+  addGateDomain,
+  effectiveGateList,
+  isGateListedIn,
+  removeGateDomain,
+} from "./settings/gate-list-config.js";
+import {
+  hashPin,
+  isValidPin,
+  isLocked,
+  registerFailure,
+  resetLockout,
+  verifyPin,
+} from "./settings/pin.js";
+import { remainingMinutes } from "@guiderail/quiz-engine";
 import {
   DEFAULT_EARNED_MINUTES,
   EARNED_WINDOW_CHOICES,
@@ -87,14 +115,101 @@ async function appendQuizLog(scope: string, result: GradeResult, topics: string[
   await storage.set("quiz.log", log.slice(-500));
 }
 
+const errResp = (e: unknown): ErrorResponse => ({
+  kind: "error",
+  message: e instanceof Error ? e.message : String(e),
+});
+
+// --- Settings snapshot + mutations (spec 007 R7) ---------------------------
+async function buildSnapshot(): Promise<SettingsSnapshotResponse> {
+  const now = new Date();
+  const [
+    onboarding,
+    pinRec,
+    childName,
+    activePack,
+    availablePacks,
+    studyHours,
+    earnedMin,
+    gateList,
+    pausedDate,
+    tokens,
+  ] = await Promise.all([
+    storage.get("config.onboarding"),
+    storage.get("config.pin"),
+    storage.get("config.childName"),
+    getActivePack(),
+    listPacks(),
+    storage.get("config.studyHours"),
+    earnedWindowMinutes(),
+    effectiveGateList(),
+    storage.get("config.pausedDate"),
+    storage.get("earned.tokens"),
+  ]);
+  const remaining = Math.max(
+    0,
+    ...Object.values(tokens ?? {}).map((t) => remainingMinutes(t, now.getTime())),
+  );
+  return {
+    kind: "settings.snapshot",
+    onboarding: onboarding ?? null,
+    hasPin: pinRec !== undefined,
+    childName: childName ?? null,
+    activePack: activePack
+      ? { id: activePack.id, board: activePack.board, grade_band: activePack.grade_band }
+      : null,
+    availablePacks,
+    studyHours: studyHours ?? {},
+    earnedWindowMinutes: earnedMin,
+    gateList,
+    pausedToday: pausedDate === localDateKey(now),
+    earnedRemainingMinutes: remaining,
+  };
+}
+
+async function applySettingsUpdate(u: SettingsUpdate): Promise<void> {
+  switch (u.op) {
+    case "child":
+      await storage.set("config.childName", u.name);
+      await setActivePack(u.packId);
+      break;
+    case "studyHours":
+      await storage.set("config.studyHours", u.schedule);
+      await reconcileStudyHours();
+      break;
+    case "earnedWindow":
+      if ((EARNED_WINDOW_CHOICES as readonly number[]).includes(u.minutes)) {
+        await storage.set("config.earnedWindowMinutes", u.minutes);
+      }
+      break;
+    case "gateAdd":
+      await addGateDomain(u.domain);
+      await reconcileStudyHours(); // refresh the DNR rule with the new effective list
+      break;
+    case "gateRemove":
+      await removeGateDomain(u.domain);
+      await reconcileStudyHours();
+      break;
+    case "pauseToday":
+      await storage.set("config.pausedDate", localDateKey(new Date()));
+      console.log("[gr] protection paused for the rest of today");
+      await reconcileStudyHours(); // lift gating now
+      break;
+    case "onboarding":
+      await storage.set("config.onboarding", u.state);
+      break;
+  }
+}
+
 // --- Study-hours reconciliation (spec 004 R1/Q1) ---------------------------
 // Bring the gate-list DNR rule into line with the per-weekday schedule, then arm
 // a single alarm for the next window transition. Idempotent — safe to run on
 // install, browser startup, and each alarm fire.
 async function reconcileStudyHours(): Promise<void> {
-  const schedule = (await storage.get("config.studyHours")) ?? {};
   const now = new Date();
-  await reconcileGateRules(isWithinWindow(schedule, now));
+  const [active, domains] = await Promise.all([isStudyTime(now), effectiveGateList()]);
+  await reconcileGateRules(active, domains);
+  const schedule = (await storage.get("config.studyHours")) ?? {};
   const next = nextTransition(schedule, now);
   if (next) {
     await chrome.alarms.create(STUDY_HOURS_ALARM, { when: next.getTime() });
@@ -103,14 +218,14 @@ async function reconcileStudyHours(): Promise<void> {
 
 // --- Build the pipeline's injected dependencies from live state -------------
 async function buildDeps(): Promise<EvalDeps> {
-  const [pack, profile, schedule] = await Promise.all([
+  const [pack, profile, studyActive, gateDomains] = await Promise.all([
     getActivePack(),
     storage.get("config.profile"),
-    storage.get("config.studyHours"),
+    isStudyTime(new Date()), // the single study-time source (spec 007 R2)
+    effectiveGateList(), // base ± parent edits (spec 007 R3)
   ]);
   return {
-    now: new Date(),
-    schedule: schedule ?? {},
+    studyActive,
     profile: profile ?? "consumer",
     pack,
     classify: (text) => classify(text),
@@ -119,23 +234,35 @@ async function buildDeps(): Promise<EvalDeps> {
     enqueue: (text) => enqueueForClassification(text),
     recordReading: (tags) => appendReading(tags),
     hasEarnedTime: (host) => hasEarnedTime(host),
+    isGateListed: (host) => isGateListedIn(host, gateDomains),
   };
 }
 
 // --- Top-level listeners (registered synchronously; L-006) ------------------
+
+function openOptionsPage(): void {
+  void chrome.tabs.create({ url: chrome.runtime.getURL("options.html") });
+}
 
 chrome.runtime.onInstalled.addListener((details) => {
   void (async () => {
     await runMigrations();
     await cacheWasmBytes();
     await installSeedPacks();
+    // Pre-fill the default study schedule so protection works even pre-onboarding (R2).
+    if ((await storage.get("config.studyHours")) === undefined) {
+      await storage.set("config.studyHours", DEFAULT_SCHEDULE);
+    }
     await reconcileStudyHours();
     await reconcileEarnedTime();
-    console.log(
-      `[gr] onInstalled (${details.reason}): migrations + wasm + seeds + study-hours + earned-time done`,
-    );
+    console.log(`[gr] onInstalled (${details.reason}): setup done`);
+    // First install → open the onboarding wizard (spec 007 R1).
+    if (details.reason === "install") openOptionsPage();
   })();
 });
+
+// Toolbar click → open the parent options/settings page (PIN-gated inside).
+chrome.action.onClicked.addListener(() => openOptionsPage());
 
 // Browser restart: the worker wakes with no alarm guaranteed — reconcile both.
 chrome.runtime.onStartup.addListener(() => {
@@ -302,6 +429,83 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =>
           kind: "error",
           message: e instanceof Error ? e.message : String(e),
         } satisfies ErrorResponse);
+      }
+    })();
+    return true;
+  }
+
+  // Settings snapshot for the options + rules pages (spec 007 R7).
+  if (isSettingsGetRequest(message)) {
+    void (async () => {
+      try {
+        sendResponse(await buildSnapshot());
+      } catch (e) {
+        sendResponse(errResp(e));
+      }
+    })();
+    return true;
+  }
+
+  // Settings mutation — the ONLY write path from UI (spec 007 R7).
+  if (isSettingsUpdateRequest(message)) {
+    void (async () => {
+      try {
+        await applySettingsUpdate(message.update);
+        sendResponse({ kind: "settings.ok" });
+      } catch (e) {
+        sendResponse(errResp(e));
+      }
+    })();
+    return true;
+  }
+
+  // Set/replace the parent PIN (onboarding or settings) — spec 007 R5.
+  if (isPinSetRequest(message)) {
+    void (async () => {
+      try {
+        if (!isValidPin(message.pin)) {
+          sendResponse({
+            kind: "error",
+            message: "PIN must be 4–6 digits",
+          } satisfies ErrorResponse);
+          return;
+        }
+        await storage.set("config.pin", await hashPin(message.pin));
+        await storage.set("config.pinLockout", resetLockout());
+        sendResponse({ kind: "settings.ok" });
+      } catch (e) {
+        sendResponse(errResp(e));
+      }
+    })();
+    return true;
+  }
+
+  // Verify the PIN with lockout enforcement (spec 007 R5).
+  if (isPinVerifyRequest(message)) {
+    void (async () => {
+      try {
+        const now = Date.now();
+        const lockout = await storage.get("config.pinLockout");
+        if (isLocked(lockout, now)) {
+          sendResponse({ kind: "pin.result", ok: false, lockedUntil: lockout!.until });
+          return;
+        }
+        const record = await storage.get("config.pin");
+        const ok = record !== undefined && (await verifyPin(message.pin, record));
+        if (ok) {
+          await storage.set("config.pinLockout", resetLockout());
+          sendResponse({ kind: "pin.result", ok: true });
+        } else {
+          const next = registerFailure(lockout, now);
+          await storage.set("config.pinLockout", next);
+          sendResponse({
+            kind: "pin.result",
+            ok: false,
+            ...(next.until > now ? { lockedUntil: next.until } : {}),
+          });
+        }
+      } catch (e) {
+        sendResponse(errResp(e));
       }
     })();
     return true;

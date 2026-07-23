@@ -23,6 +23,8 @@ export const buildOptions = {
     service_worker: join(HERE, "src", "service_worker.ts"),
     content: join(HERE, "src", "content.ts"),
     quiz_gate: join(HERE, "src", "quiz_gate.ts"),
+    options: join(HERE, "src", "options.ts"),
+    rules: join(HERE, "src", "rules.ts"),
   },
   outdir: OUT_DIR,
   bundle: true,
@@ -44,6 +46,8 @@ export function copyStatic() {
   }
   cpSync(join(HERE, "manifest.json"), join(OUT_DIR, "manifest.json"));
   cpSync(join(HERE, "quiz_gate.html"), join(OUT_DIR, "quiz_gate.html"));
+  cpSync(join(HERE, "options.html"), join(OUT_DIR, "options.html"));
+  cpSync(join(HERE, "rules.html"), join(OUT_DIR, "rules.html"));
   cpSync(join(HERE, "static"), join(OUT_DIR, "static"), { recursive: true });
   cpSync(PKG_DIR, join(OUT_DIR, "pkg"), { recursive: true });
 }

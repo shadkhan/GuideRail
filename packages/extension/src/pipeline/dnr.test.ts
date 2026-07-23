@@ -3,6 +3,7 @@
 
 import { describe, it, expect, vi } from "vitest";
 import { reconcileGateRules } from "./dnr.js";
+import { GATE_LIST } from "./gate-list.js";
 
 const dnr = () =>
   chrome.declarativeNetRequest.updateDynamicRules as unknown as ReturnType<typeof vi.fn>;
@@ -10,7 +11,7 @@ const dnr = () =>
 describe("reconcileGateRules", () => {
   it("adds one redirect rule that captures the ORIGIN as ?src (no full-URL truncation)", async () => {
     dnr().mockClear();
-    await reconcileGateRules(true);
+    await reconcileGateRules(true, [...GATE_LIST]);
     const arg = dnr().mock.calls.at(-1)?.[0] as {
       addRules: Array<{
         action: { redirect: { regexSubstitution: string } };
@@ -28,7 +29,7 @@ describe("reconcileGateRules", () => {
 
   it("removes the rule (adds none) when outside study hours", async () => {
     dnr().mockClear();
-    await reconcileGateRules(false);
+    await reconcileGateRules(false, [...GATE_LIST]);
     const arg = dnr().mock.calls.at(-1)?.[0] as { addRules: unknown[]; removeRuleIds: number[] };
     expect(arg.addRules).toEqual([]);
     expect(arg.removeRuleIds.length).toBeGreaterThan(0);

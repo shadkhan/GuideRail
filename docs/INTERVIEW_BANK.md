@@ -185,4 +185,16 @@ Interview-ready Q&A harvested from real decisions in this project. Maintained by
 - **Evidence I can show:** docs/adr/0011-blur-activation-model.md, packages/extension/static/blur.css (html.gr-blur-active model), packages/extension/src/blur/{trusted-static,activate,guard}.ts, and the 500-image chunk-scheduler test.
 
 ---
-*Next: IQ-018 (assigned by knowledge-capture skill)*
+
+### IQ-018 · How do you build a parent PIN when the child effectively controls the device?
+
+| Area | Source |
+| --- | --- |
+| Security/Product | ADR-0012, L-018 |
+
+- **60-second answer:** I start by refusing to overclaim. On an unmanaged home computer, the settings a PIN would protect live in local storage the child can edit with DevTools, so a PIN is a UI speed bump, not access control — and I'd rather ship an honest speed bump than a fake vault. So I spend the budget where it's real: the PIN is PBKDF2 with a random salt, never plaintext, so it doesn't leak verbatim and is costly to crack offline; a five-attempt lockout on a stored cooldown timestamp — which survives the extension's 30-second worker kill — stops online guessing; and every settings write goes through one typed message handler in the worker, so the UI can never scribble on storage directly. Then I name the gap out loud: the easiest bypass isn't even editing storage, it's replaying the settings-update message with no PIN at all. I documented that in the ADR.
+- **The follow-up they'll ask:** "Then why not verify the PIN server-side, or gate the message handler?" — A server can't stop local storage edits, so it adds infrastructure without closing the gap; and a worker-side unlock gate is itself an editable flag on an unmanaged profile, so it's security theatre that contradicts the honesty. The real lock is the managed, force-installed institutional profile in Phase 4 — until then the product's thesis carries it: make bypass unnecessary, not impossible, because a child who *wants* to study doesn't fight the tool.
+- **Evidence I can show:** docs/adr/0012-pin-and-local-settings-trust.md, packages/extension/src/settings/pin.ts (PBKDF2 + lockout), and the worker set→verify→5-attempt-lock integration test.
+
+---
+*Next: IQ-019 (assigned by knowledge-capture skill)*

@@ -44,3 +44,27 @@ describe("nextTransition", () => {
     expect(nextTransition({}, day)).toBeNull();
   });
 });
+
+describe("midnight-spanning windows (spec 007 R2)", () => {
+  // A window that wraps past midnight: 22:00 one day → 02:00 the next.
+  const d0 = new Date(2026, 6, 20); // Jul 20 2026
+  const spanning: StudySchedule = { [d0.getDay()]: [{ start: "22:00", end: "02:00" }] };
+
+  it("is active in the evening part (same day, after start)", () => {
+    expect(isWithinWindow(spanning, new Date(2026, 6, 20, 23, 0))).toBe(true);
+  });
+  it("is inactive before the start", () => {
+    expect(isWithinWindow(spanning, new Date(2026, 6, 20, 21, 0))).toBe(false);
+  });
+  it("is active in the early-morning spill (next day, before end)", () => {
+    expect(isWithinWindow(spanning, new Date(2026, 6, 21, 1, 0))).toBe(true);
+  });
+  it("is inactive after the spill ends", () => {
+    expect(isWithinWindow(spanning, new Date(2026, 6, 21, 2, 0))).toBe(false);
+  });
+  it("nextTransition from the evening lands the end on the following day", () => {
+    const next = nextTransition(spanning, new Date(2026, 6, 20, 23, 0));
+    expect(next?.getDate()).toBe(21); // next day
+    expect(next?.getHours()).toBe(2);
+  });
+});

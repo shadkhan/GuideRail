@@ -1,0 +1,20 @@
+<!doctype html>
+<!--
+  Child rules screen (spec 007 R4). NOT PIN-gated — the child can always see
+  exactly what applies to them. Plain language, ~10-year reading level. Logic in
+  rules.js (bundled from src/rules.ts); read-only (no mutations).
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GuideRail — Your Rules</title>
+    <link rel="stylesheet" href="static/pages.css" />
+  </head>
+  <body>
+    <main id="app" aria-live="polite">
+      <div class="card"><p class="eyebrow">GuideRail</p><h1>Loading your rules…</h1></div>
+    </main>
+    <script src="rules.js"></script>
+  </body>
+</html>

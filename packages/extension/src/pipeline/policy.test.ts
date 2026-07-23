@@ -5,6 +5,7 @@
 import { describe, it, expect, vi } from "vitest";
 import type { Pack } from "../pack/types.js";
 import { evaluate, type EvalDeps, type EvalInput } from "./policy.js";
+import { isGateListed } from "./gate-list.js";
 import type { ClassifyVerdict } from "./types.js";
 
 const ALLOWED_CH = "UCallowedchannel00000000";
@@ -26,14 +27,9 @@ const PACK: Pack = {
   yt_policy: { shorts: "gate", embeds: "inherit_parent" },
 };
 
-const NOW = new Date(2026, 6, 20, 17, 0);
-// A schedule that is "always within" for NOW's weekday.
-const ALWAYS = { [NOW.getDay()]: [{ start: "00:00", end: "23:59" }] };
-
 function makeDeps(over: Partial<EvalDeps> = {}): EvalDeps {
   return {
-    now: over.now ?? NOW,
-    schedule: over.schedule ?? ALWAYS,
+    studyActive: over.studyActive ?? true,
     profile: over.profile ?? "consumer",
     pack: "pack" in over ? over.pack : PACK,
     classify:
@@ -43,6 +39,7 @@ function makeDeps(over: Partial<EvalDeps> = {}): EvalDeps {
     enqueue: over.enqueue ?? vi.fn(async () => {}),
     recordReading: over.recordReading ?? vi.fn(async () => {}),
     hasEarnedTime: over.hasEarnedTime ?? vi.fn(async () => false),
+    isGateListed: over.isGateListed ?? isGateListed,
   };
 }
 
@@ -58,7 +55,7 @@ describe("pipeline stages", () => {
     const classify = vi.fn(async () => ({ verdict: "quiz_gate" as ClassifyVerdict, matches: [] }));
     const r = await evaluate(
       input({ url: "https://netflix.com" }),
-      makeDeps({ schedule: {}, classify }),
+      makeDeps({ studyActive: false, classify }),
     );
     expect(r).toMatchObject({ verdict: "allow", reason: "outside-study-hours" });
     expect(classify).not.toHaveBeenCalled();

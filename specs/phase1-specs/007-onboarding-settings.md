@@ -1,5 +1,5 @@
 # Spec: Onboarding, Study Hours & Child Rules Screen
-Status: Draft · Date: 2026-07-17 · ADRs: none expected
+Status: Implemented · Date: 2026-07-17 (implemented 2026-07-22) · ADRs: ADR-0012 (PIN & local-settings trust) — Accepted
 
 ## Goal (one sentence, user-visible outcome)
 A parent goes from install to working protection in under 10 minutes — one child profile, curriculum picked, study hours set — and the child can always see exactly what rules apply to them.
@@ -18,11 +18,17 @@ R7. Every settings mutation goes through the typed message schema + storage wrap
 - Ask-to-unlock; weekly digest
 
 ## Acceptance criteria (how "done" is proven)
-- [ ] Test: onboarding state machine (resume-from-abandon), isStudyTime() matrix incl. midnight-spanning windows, PIN lockout timing
-- [ ] Evidence: screen recording — fresh install to protected browsing < 10 minutes wall clock
-- [ ] Evidence: child rules screen reviewed by an actual child (your beta tester #1) — capture their feedback verbatim in LEARNINGS
-- [ ] Accessibility: keyboard-only walkthrough recording; contrast check output
+- [x] Test: onboarding state machine (resume-from-abandon), isStudyTime() matrix incl. midnight-spanning windows, PIN lockout timing — `src/settings/{onboarding,study-time,pin}.test.ts`, `src/pipeline/study-hours.test.ts` (midnight-spanning), `service_worker.test.ts` (set→verify→5-attempt lock)
+- [~] Evidence: screen recording — fresh install to protected browsing < 10 minutes. **Manual** (L-008 blocks CLI extension loading); the onboarding state machine + worker handlers are unit/integration-tested; recording hand-captured via `pnpm ext:dev`.
+- [~] Evidence: child rules screen reviewed by an actual child; feedback verbatim in LEARNINGS. **Manual + pending** — needs a real beta tester #1; not fabricated. To be captured when the manual review happens.
+- [~] Accessibility: keyboard-only walkthrough + contrast check. **Manual** (L-008); `static/pages.css` uses semantic elements, `:focus-visible` outlines, and AA-intent colors — the walkthrough + contrast output are hand-captured.
 
-## Open questions (must be empty before Status: Approved)
-- Q1: PIN recovery path — none (re-onboard) vs parent email link (requires backend)? Recommend none for beta, stated clearly.
-- Q2: Default gate-list contents — finalize the ~50 domains (I can draft; you approve).
+## Resolved decisions (were open questions; resolved with user 2026-07-22)
+- Q1 (PIN recovery): **none / re-onboard** — no backend; stated plainly in the PIN step UI and ADR-0012.
+- Q2 (default gate-list): **the existing ~46-domain `pipeline/gate-list.ts` list** is the editable default (R3 add/remove layered over it).
+
+## Post-implementation notes
+- **PIN gates the UI, not the data** — forgeable on an unmanaged device (storage edit or `settings.update` message replay); documented residual (ADR-0012, L-018, IQ-018). Real enforcement is the Phase 4 managed profile.
+- R2's single source of truth is `settings/study-time.ts` `isStudyTime()`; `EvalDeps` now takes a `studyActive` boolean (not a schedule).
+- R5's lockout is a stored cooldown timestamp (not chrome.alarms) — the more robust equivalent, per the spec-005 grace precedent (ADR-0012).
+- Study-hours UI is one window per weekday for v1 (the schema supports more).

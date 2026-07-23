@@ -21,8 +21,27 @@ import type { Pack } from "./pack/types.js";
 import type { StudySchedule } from "./pipeline/study-hours.js";
 import type { CachedClassify, Profile, QueueEntry, ReadingEntry } from "./pipeline/types.js";
 import type { EarnedToken } from "@guiderail/quiz-engine";
+import type { OnboardingState } from "./settings/onboarding.js";
 
 export const STORAGE_VERSION = 1;
+
+// --- spec 007 settings value shapes -----------------------------------------
+/** PBKDF2 parent-PIN record (never plaintext) — spec 007 R5, ADR-0012. */
+export interface PinRecord {
+  hashB64: string;
+  saltB64: string;
+  iterations: number;
+}
+/** PIN attempt/lockout state. `until` is an epoch-ms cooldown, 0 when unlocked. */
+export interface PinLockout {
+  attempts: number;
+  until: number;
+}
+/** Per-family gate-list edits layered over the static base (spec 007 R3). */
+export interface GateListOverrides {
+  added: string[];
+  removed: string[];
+}
 
 /** Namespaced, version-stamped key: `gr.v1.<name>`. */
 function key(name: string): string {
@@ -69,6 +88,19 @@ export interface StorageSchemaV1 {
         missedTopics: string[];
       }>
     | undefined;
+  // --- spec 007: onboarding + parent settings ---
+  /** Parent PIN record (PBKDF2, never plaintext) — spec 007 R5. */
+  "config.pin": PinRecord | undefined;
+  /** PIN attempt/lockout state — spec 007 R5. */
+  "config.pinLockout": PinLockout | undefined;
+  /** Child's display name (local only) — spec 007 R1. */
+  "config.childName": string | undefined;
+  /** Persisted onboarding progress so an abandoned run resumes (spec 007 R1). */
+  "config.onboarding": OnboardingState | undefined;
+  /** Local date (YYYY-MM-DD) protection is paused for today (spec 007 R3). */
+  "config.pausedDate": string | undefined;
+  /** Per-family gate-list add/remove edits over the static base (spec 007 R3). */
+  "config.gateListOverrides": GateListOverrides | undefined;
 }
 
 type Key = keyof StorageSchemaV1;
